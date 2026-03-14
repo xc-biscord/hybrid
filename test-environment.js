@@ -1,6 +1,6 @@
 (function () {
-  document.addEventListener('DOMContentLoaded', function () {
-    if (document.querySelector('.test-environment-banner')) {
+  function addTestEnvironmentMarker() {
+    if (!document.body || document.querySelector('.test-environment-banner')) {
       return;
     }
 
@@ -8,8 +8,16 @@
 
     var banner = document.createElement('div');
     banner.className = 'test-environment-banner';
+    banner.setAttribute('role', 'status');
+    banner.setAttribute('aria-live', 'polite');
     banner.textContent = '⚠️ Environnement de test : nouvelles fonctionnalités en cours de validation.';
 
-    document.body.insertBefore(banner, document.body.firstChild);
-  });
+    document.body.appendChild(banner);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', addTestEnvironmentMarker);
+  } else {
+    addTestEnvironmentMarker();
+  }
 })();
