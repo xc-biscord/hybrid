@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Accueil - Biscord</title>
+  <link rel="stylesheet" href="styles/accueil.css?v=2">
+  <script src="auth_check.js?v=2"></script>
+</head>
+
+<body>
+  <div class="accueil-container">
+    <a href="serveurs" class="btn-acceder-biscord">🔗 Accéder à Biscord</a>
+
+    <h1>Hey, re sur <span class="biscord">Biscord, <span id="username"></span> !</span></h1>
+
+    <section class="profil-card">
+      <h2>👤 Profil utilisateur</h2>
+      <img id="avatar" src="" alt="Avatar" class="avatar">
+    </section>
+
+    <section class="modifier-profil">
+      <h3>✏️ Modifier mon profil</h3>
+      <form id="form-profile">
+        <label for="new-bio">Bio :</label>
+        <textarea id="new-bio" rows="3" placeholder="Décris-toi ici..."></textarea>
+
+        <label for="new-avatar">Avatar (URL) :</label>
+        <input type="text" id="new-avatar" placeholder="https://...">
+
+        <label for="new-status">Status :</label>
+        <input type="text" id="new-status" placeholder="En ligne / Absent...">
+
+        <button type="submit">💾 Enregistrer les changements</button>
+      </form>
+
+      <h3>🔧 Modifier mon compte</h3>
+      <form id="form-account">
+        <label for="new-username">Nom d'utilisateur :</label>
+        <input type="text" id="new-username" placeholder="Nouveau pseudo..." required>
+
+        <label for="new-email">Adresse email :</label>
+        <input type="email" id="new-email" placeholder="nouveau@email.com" required>
+
+        <button type="submit">💾 Enregistrer le compte</button>
+      </form>
+
+      <h3>🔒 Réglages du mot de passe</h3>
+      <form id="form-password">
+        <label for="new-password">Nouveau mot de passe :</label>
+        <input type="password" id="new-password" placeholder="(laisse vide pour ne pas changer)">
+
+        <label for="confirm-password">Confirmer le nouveau mot de passe :</label>
+        <input type="password" id="confirm-password" placeholder="Retape le mot de passe">
+
+        <label for="current-password">Mot de passe actuel :</label>
+        <input type="password" id="current-password" placeholder="Obligatoire si changement de mot de passe">
+
+        <button type="submit">💾 Enregistrer les réglages du mot de passe</button>
+      </form>
+    </section>
+  </div>
+
+  <div id="biscord-toast" class="hidden toast-wrapper">
+    <div class="toast-message">
+      <strong id="toast-title"></strong>
+      <p id="toast-text"></p>
+    </div>
+  </div>
+
+  <script>
+    function showToast(title, message, duration = 3000) {
+      const wrapper = document.getElementById("biscord-toast");
+      const titleEl = document.getElementById("toast-title");
+      const textEl = document.getElementById("toast-text");
+
+      titleEl.textContent = title;
+      textEl.textContent = message;
+      wrapper.classList.remove("hidden");
+
+      setTimeout(() => {
+        wrapper.classList.add("hidden");
+      }, duration);
+    }
+
+    async function chargerProfil() {
+      const res = await fetch('api/get_profile.php');
+      const data = await res.json();
+      if (data.success) {
+        const p = data.profile;
+        document.getElementById('username').textContent = p.username;
+        document.getElementById('avatar').src = p.avatar_url;
+        document.getElementById('new-bio').value = p.bio || "";
+        document.getElementById('new-avatar').value = p.avatar_url || "";
+        document.getElementById('new-status').value = p.status || "";
+        document.getElementById('new-username').value = p.username;
+        document.getElementById('new-email').value = p.email || "";
+      } else {
+        showToast("Erreur", data.error || "Impossible de charger le profil.");
+      }
+    }
+
+    document.getElementById("form-profile").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const bio = document.getElementById("new-bio").value;
+      const avatar_url = document.getElementById("new-avatar").value;
+      const status = document.getElementById("new-status").value;
+
+      try {
+        const res = await fetch('api/update_profile.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bio, avatar_url, status })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          showToast("✅ Profil mis à jour", "Tout est enregistré !");
+          chargerProfil();
+        } else {
+          showToast("Erreur", data.error);
+        }
+      } catch (err) {
+        showToast("Erreur réseau", "Impossible de contacter le serveur.");
+      }
+    });
+
+    document.getElementById("form-account").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const username = document.getElementById("new-username").value;
+      const email = document.getElementById("new-email").value;
+
+      try {
+        const res = await fetch('api/update_account.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ username, email })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          showToast("✅ Compte mis à jour avec succès", "Synchronisation en cours !");
+          chargerProfil();
+        } else {
+          showToast("Erreur", data.error);
+        }
+      } catch (err) {
+        showToast("Erreur", "Connexion impossible au serveur.");
+      }
+    });
+
+    document.getElementById("form-password").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const password = document.getElementById("new-password").value;
+      const confirm = document.getElementById("confirm-password").value;
+      const current_password = document.getElementById("current-password").value;
+
+      if (password && password !== confirm) {
+        showToast("Erreur", "Les nouveaux mots de passe ne correspondent pas.");
+        return;
+      }
+
+      if (password && !current_password) {
+        showToast("Erreur", "Tu dois entrer ton mot de passe actuel.");
+        return;
+      }
+
+      try {
+        const res = await fetch('api/update_account.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ password, current_password })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          showToast("✅ Mot de passe changé avec succès !", "Synchronisation en cours...");
+        } else {
+          showToast("Erreur", data.error);
+        }
+      } catch (err) {
+        showToast("Erreur", "Serveur injoignable.");
+      }
+    });
+
+    chargerProfil();
+  </script>
+</body>
+</html>

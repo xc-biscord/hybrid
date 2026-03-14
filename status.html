@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Statut API Biscord</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      background: #0d0d0d;
+      color: white;
+      font-family: 'Montserrat', sans-serif;
+      padding: 2rem;
+    }
+
+    .status-card {
+      background: #1a1a1a;
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 0 20px rgba(0, 188, 212, 0.2);
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    h1, h2 {
+      text-align: center;
+    }
+
+    #global-average {
+      text-align: center;
+      color: #ccc;
+      font-size: 1.1rem;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+
+    .endpoint-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #121212;
+      border: 1px solid #222;
+      border-radius: 10px;
+      padding: 0.8rem 1rem;
+      margin-top: 1rem;
+    }
+
+    .endpoint-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ping-metrics {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .status-cube {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background-color: gray;
+      box-shadow: 0 0 5px #444;
+    }
+
+    .status-ok { background-color: #00ff88 !important; box-shadow: 0 0 10px #00ff88; }
+    .status-fail { background-color: #ff0033 !important; box-shadow: 0 0 10px #ff0033; }
+
+    .ping-time-label { font-size: 0.85rem; color: #aaa; }
+    .ping-average { font-weight: bold; font-size: 1.1rem; color: #ccc; }
+
+    .ping-history-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 0.5rem 0 1rem 0.4rem;
+      padding-left: 0.6rem;
+    }
+
+    .ping-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+
+    .ping-ok { background-color: #00ff88; }
+    .ping-fail { background-color: #ff0033; }
+
+    .manual-btn {
+      background: #00bcd4;
+      border: none;
+      color: white;
+      padding: 0.3rem 0.7rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="status-card">
+    <h1>📡 Santé des endpoints API</h1>
+    <p id="global-average">⏱ Moyenne générale : --ms</p>
+    <div class="controls">
+      <button id="togglePing" class="manual-btn">🔁 Stopper le ping auto</button>
+    </div>
+    <canvas id="latencyChart" height="100"></canvas>
+    <div id="status-container"></div>
+  </div>
+
+  <script>
+    const API_BASE = "https://biscord-api-stg.xcsoftworks.com/api/";
+    const ENDPOINTS = [
+      "login.php", "send_message.php", "register.php",
+      "check_auth.php", "get_profile.php", "update_profile.php",
+      "update_account.php", "get_channels.php", "get_messages.php",
+      "get_server_name.php", "get_servers.php", "get_user_profile.php",
+      "get_users_in_server.php", "create_channel.php", "create_server.php",
+      "create_invite.php", "accept_invite.php"
+    ];
+
+    const pingStats = {};
+    const MAX_PINGS = 25;
+    let autoPing = true;
+
+    const ctx = document.getElementById("latencyChart").getContext("2d");
+    const chartData = {
+      labels: [],
+      datasets: [{ label: "Moyenne API", data: [], borderColor: '#00cfff', fill: false }]
+    };
+    const latencyChart = new Chart(ctx, {
+      type: 'line',
+      data: chartData,
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+
+    document.getElementById("togglePing").onclick = () => {
+      autoPing = !autoPing;
+      document.getElementById("togglePing").textContent = autoPing ? "🔁 Stopper le ping auto" : "▶️ Relancer le ping auto";
+    };
+
+    function getTimeString(date) {
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+
+    function updateGlobalAverage() {
+      let total = 0, count = 0;
+      for (const ep in pingStats) {
+        const arr = pingStats[ep].times;
+        total += arr.reduce((a, b) => a + b, 0);
+        count += arr.length;
+      }
+      const avg = count ? Math.round(total / count) : '--';
+      document.getElementById("global-average").textContent = `⏱ Moyenne générale : ${avg}ms`;
+
+      const now = new Date().toLocaleTimeString();
+      chartData.labels.push(now);
+      chartData.datasets[0].data.push(avg);
+      if (chartData.labels.length > 20) {
+        chartData.labels.shift();
+        chartData.datasets[0].data.shift();
+      }
+      latencyChart.update();
+    }
+
+    function addPingHistory(ep, success, duration) {
+      const bar = document.getElementById(`ping-history-${ep}`);
+      const dot = document.createElement("div");
+      dot.className = `ping-dot ${success ? 'ping-ok' : 'ping-fail'}`;
+      dot.title = success ? `${Math.round(duration)}ms` : 'Erreur';
+      bar.appendChild(dot);
+      if (bar.children.length > MAX_PINGS) bar.removeChild(bar.firstChild);
+    }
+
+    async function pingEndpoint(ep) {
+      const cube = document.getElementById(`status-${ep}`);
+      const avgSpan = document.getElementById(`ping-average-${ep}`);
+      const start = performance.now();
+      try {
+        const res = await fetch(API_BASE + ep, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ dummy: true })
+        });
+        const time = performance.now() - start;
+        const text = await res.text();
+        let data;
+        try { data = JSON.parse(text); } catch { data = null; }
+
+        const ok = !!data;
+        cube.classList.toggle("status-ok", ok);
+        cube.classList.toggle("status-fail", !ok);
+        if (ok) {
+          pingStats[ep].times.push(time);
+          if (pingStats[ep].times.length > MAX_PINGS) pingStats[ep].times.shift();
+          avgSpan.textContent = `${Math.round(pingStats[ep].times.reduce((a,b) => a+b, 0) / pingStats[ep].times.length)}ms`;
+        }
+        addPingHistory(ep, ok, time);
+        updateGlobalAverage();
+      } catch {
+        cube.classList.remove("status-ok");
+        cube.classList.add("status-fail");
+        addPingHistory(ep, false, 0);
+      }
+    }
+
+    function buildUI(ep) {
+      const now = new Date();
+      pingStats[ep] = { times: [], startedAt: now };
+      const html = `
+        <div class="endpoint-line">
+          <div class="endpoint-info">
+            <strong>📁 ${ep}</strong>
+            <div class="ping-time-label">Depuis ${getTimeString(now)}</div>
+          </div>
+          <div class="ping-metrics">
+            <button class="manual-btn" onclick="pingEndpoint('${ep}')">Ping</button>
+            <span id="ping-average-${ep}" class="ping-average">--ms</span>
+            <div id="status-${ep}" class="status-cube"></div>
+          </div>
+        </div>
+        <div id="ping-history-${ep}" class="ping-history-bar"></div>
+      `;
+      document.getElementById("status-container").insertAdjacentHTML("beforeend", html);
+    }
+
+    function startLoop() {
+      setInterval(() => {
+        if (!autoPing) return;
+        ENDPOINTS.forEach(pingEndpoint);
+      }, 10000);
+    }
+
+    ENDPOINTS.forEach(buildUI);
+    startLoop();
+  </script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+* {
+    box-sizing: border-box;
+  }
+  
+
+body {
+    margin: 0;
+    background-color: #121212;
+    font-family: 'Montserrat', sans-serif;
+    color: #fff;
+  }
+  
+  .dm-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    padding: 1rem;
+  }
+  
+  .dm-app-window {
+    width: 100%;
+    max-width: 1000px;  /* Avant : 1000 ou 1200 */
+    height: 50vh;
+    border-radius: 16px;
+    background-color: #222;
+    box-shadow: 0 0 20px #00bcd4, 0 0 30px #8a2be2;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  
+  .dm-header-bar {
+    background-color: #121212;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #333;
+  }
+  
+  .dm-title-main {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #00d4ff;
+  }
+  
+  .dm-window-controls span {
+    margin-left: 10px;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  
+  .dm-window-controls .close {
+    color: red;
+  }
+  
+  .dm-body {
+    display: flex;
+    height: 100%;
+  }
+  
+  .dm-chat-section {
+    flex: 3;
+    display: flex;
+    flex-direction: column;
+    background-color: #181818;
+    padding: 1.5rem 2rem;
+}
+  
+  .dm-recipient {
+    margin-bottom: 1rem;
+    background: #1e1e1e;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #ccc;
+  }
+  
+  .dm-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 1rem;
+  }
+  .dm-form {
+    margin-top: 1rem;
+    width: 100%;            /* 🔧 Forcer à ne pas dépasser */
+    box-sizing: border-box; /* 🔒 Inclus le padding dans la largeur */
+  }
+  
+  .dm-form input {
+    width: 100%;
+    padding: 0.9rem 1.2rem;
+    background-color: #2a2a2a;
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 1rem;
+    box-shadow: inset 0 0 4px rgba(0,0,0,0.6);
+    box-sizing: border-box; /* 🔧 Hyper important */
+  }
+  
+  
+  .message-group {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+  
+  .message-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    margin-right: 12px;
+    object-fit: cover;
+    border: 2px solid #00bcd4;
+  }
+  
+  .message-content-group {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .message-header {
+    font-weight: bold;
+    color: #00d4ff;
+    margin-bottom: 0.3rem;
+  }
+  
+  .message-text {
+    background-color: #2a2a2a;
+    padding: 0.6rem 1rem;
+    border-radius: 10px;
+    word-wrap: break-word;
+    max-width: 600px;
+    margin-bottom: 0.3rem;
+  }
+  
+  .dm-sidebar {
+    flex: 1;
+    padding: 1rem;
+    background-color: #1e1e1e;
+    border-left: 1px solid #333;
+  }
+  
+  .dm-sidebar-title {
+    font-size: 0.85rem;
+    color: #aaa;
+    margin-bottom: 1rem;
+  }
+  
+  .dm-user {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background-color: #2a2a2a;
+    padding: 0.6rem;
+    border-radius: 10px;
+  }
+  
+  .dm-user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid limegreen;
+  }
+  
+  #dm-user-name {
+    font-weight: bold;
+    color: #00d4ff;
+  }
+  

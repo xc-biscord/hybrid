@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Biscord - hôte de Message privé</title>
+  <link rel="stylesheet" href="styles/dm.css?v=2.5">
+  <script src="auth_check.js"></script>
+</head>
+<body>
+  <div class="dm-wrapper">
+    <div class="dm-app-window">
+      <div class="dm-header-bar">
+        <div class="dm-title-main">Conversation protégée PHP-BCRYPT</div>
+        <div class="dm-window-controls">
+          <span>–</span><span>◻</span><span class="close">⭘</span>
+        </div>
+      </div>
+
+      <div class="dm-body">
+        <div class="dm-chat-section">
+          <div class="dm-recipient">Converse avec <span id="dm-username">...</span></div>
+          <div id="dm-messages" class="dm-messages"></div>
+          <form id="dm-form" class="dm-form">
+            <input type="text" id="dm-input" placeholder="Écrire un Biscord..." autocomplete="off">
+          </form>
+        </div>
+        <div class="dm-sidebar">
+          <div class="dm-sidebar-title">relations – <span>1 en ligne</span></div>
+          <div class="dm-user">
+            <img src="" id="dm-avatar" class="dm-user-avatar" alt="Avatar">
+            <span id="dm-user-name">Utilisateur</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = "https://biscord-api-stg.xcsoftworks.com/api";
+    const cid = new URLSearchParams(window.location.search).get("cid");
+
+    if (!cid) {
+      document.body.innerHTML = `
+        <div style="padding: 2rem; text-align: center; font-size: 1.2rem; color: #ff4d4d; font-weight: bold; background-color: #121212;">
+          🚫 BISCORD-800 : Pas de destinataire trouvé.<br>
+          Veuillez sélectionner un utilisateur pour commencer une conversation privée.
+        </div>`;
+      throw new Error("BISCORD-800");
+    }
+
+    async function chargerMessages() {
+      const res = await fetch(`${API_BASE}/get_dm_messages.php?conversation_id=${cid}`, { credentials: "include" });
+      const data = await res.json();
+      const container = document.getElementById("dm-messages");
+      container.innerHTML = "";
+
+      if (!data.messages) return;
+
+      // Affichage des infos du destinataire
+      if (data.recipient) {
+  const r = data.recipient;
+  console.log("Destinataire DM :", r); // DEBUG !
+  document.getElementById("dm-username").textContent = r.username || "???";
+  document.getElementById("dm-user-name").textContent = r.username || "???";
+  document.getElementById("dm-avatar").src = r.avatar_url && r.avatar_url !== ""
+    ? r.avatar_url
+    : "https://biscord-api-stg.xcsoftworks.com/assets/default.png";
+} else {
+  console.warn("⚠️ Aucun destinataire reçu dans la réponse de l'API !");
+}
+
+
+      let lastSenderId = null;
+
+      data.messages.forEach(msg => {
+        const isSameUser = msg.sender_id === lastSenderId;
+        lastSenderId = msg.sender_id;
+
+        if (!isSameUser) {
+          const group = document.createElement("div");
+          group.className = "message-group";
+          group.innerHTML = `
+            <img src="${msg.avatar || 'https://biscord-api-stg.xcsoftworks.com/assets/default.png'}" class="message-avatar">
+            <div class="message-content-group">
+              <div class="message-header">${msg.username}</div>
+              <div class="message-text">${msg.content}</div>
+            </div>`;
+          container.appendChild(group);
+        } else {
+          const lastGroup = container.lastElementChild.querySelector(".message-content-group");
+          const text = document.createElement("div");
+          text.classList.add("message-text");
+          text.textContent = msg.content;
+          lastGroup.appendChild(text);
+        }
+      });
+
+      container.scrollTop = container.scrollHeight;
+    }
+
+    document.getElementById("dm-form").addEventListener("submit", async e => {
+      e.preventDefault();
+      const input = document.getElementById("dm-input");
+      const content = input.value.trim();
+      if (!content) return;
+
+      await fetch(`${API_BASE}/send_dm.php`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conversation_id: cid, content })
+      });
+
+      input.value = "";
+      chargerMessages();
+    });
+
+    chargerMessages();
+    setInterval(chargerMessages, 4000);
+  </script>
+</body>
+</html>

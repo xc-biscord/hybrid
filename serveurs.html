@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Biscord - Sélection des serveurs</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles/serveurs.css?v=1.3" />
+  <script src="auth_check.js?v2"></script>
+
+</head>
+<body>
+  <div class="main-container">
+    <h1>Bienvenue sur <span class="highlight">Biscord</span> !</h1>
+    <p class="subtitle">Voici quelques serveurs pour commencer :</p>
+
+    <div id="server-list" class="server-list"></div>
+
+    <div class="create-server-box">
+      <h2>Créer un nouveau serveur</h2>
+      <form id="create-server-form">
+        <input type="text" id="server-name" placeholder="Nom du serveur" required />
+        <button type="submit">Créer</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = "https://biscord-api-stg.xcsoftworks.com/api";
+
+    async function chargerServeurs() {
+      const res = await fetch(`${API_BASE}/get_servers.php`, {
+        credentials: "include"
+      });
+      const data = await res.json();
+
+      const list = document.getElementById("server-list");
+      list.innerHTML = "";
+
+      if (data.success && data.servers.length > 0) {
+        data.servers.forEach(server => {
+          const div = document.createElement("div");
+          div.className = "server-entry";
+          div.textContent = server.name;
+          div.onclick = () => {
+            window.location.href = `serveur?id=${server.id}`;
+          };
+          list.appendChild(div);
+        });
+      } else {
+        list.innerHTML = "<p class='no-server'>Aucun serveur pour l’instant.</p>";
+      }
+    }
+
+    document.getElementById("create-server-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const name = document.getElementById("server-name").value;
+
+  const res = await fetch(`${API_BASE}/create_server.php`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ nom: name }) // ← ici !
+  });
+
+  const data = await res.json();
+  if (data.success) {
+    alert("Serveur créé !");
+    chargerServeurs();
+  } else {
+    alert("Erreur : " + data.error);
+  }
+});
+
+
+    chargerServeurs();
+  </script>
+</body>
+</html>
