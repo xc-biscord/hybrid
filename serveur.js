@@ -1,4 +1,4 @@
-const API_BASE = "https://biscord-api-stg.xcsoftworks.com/api";
+const API_BASE = "/api";
 const serverId = new URLSearchParams(window.location.search).get('id');
 let currentChannelId = null;
 
