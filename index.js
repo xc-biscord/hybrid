@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const API_BASE = "https://biscord-api-stg.xcsoftworks.com/api";
+  const API_BASE = "/api";
 
   const welcomeScreen = document.getElementById("welcome-screen");
   const formInscription = document.getElementById("form-inscription");
