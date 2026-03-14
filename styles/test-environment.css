@@ -1,0 +1,18 @@
+.test-environment-banner {
+  position: sticky;
+  top: 0;
+  z-index: 10000;
+  width: 100%;
+  background: #ff7a00;
+  color: #1a1a1a;
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 10px 14px;
+  box-sizing: border-box;
+  border-bottom: 2px solid #cc5f00;
+}
+
+body.test-environment-active {
+  border-top: 6px solid #ff7a00;
+}
