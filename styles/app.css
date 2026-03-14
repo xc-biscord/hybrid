@@ -2022,3 +2022,42 @@ h1 span {
   0%, 100% { transform: translateY(0px) translateX(0px); }
   50% { transform: translateY(-16px) translateX(6px); }
 }
+
+
+/* === Page-specific layout guardrails (post-revamp) === */
+body.test-environment-active {
+  padding-top: 52px;
+}
+
+body.page-index,
+body.page-serveurs,
+body.page-status,
+body.page-admin {
+  min-height: 100vh;
+}
+
+body.page-accueil {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 20px 72px;
+  min-height: 100vh;
+}
+
+body.page-accueil .accueil-container {
+  width: min(920px, 100%);
+  margin: 0 auto;
+}
+
+body.page-invitation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 40px 20px 72px;
+}
+
+body.page-invitation #container {
+  width: min(560px, 100%);
+  margin: 0 auto;
+}
