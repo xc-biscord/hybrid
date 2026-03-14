@@ -113,19 +113,6 @@ CREATE TABLE `messages` (
 
 -- --------------------------------------------------------
 
---
--- Structure de la table `private_messages`
---
-
-CREATE TABLE `private_messages` (
-  `id` int NOT NULL,
-  `sender_id` int NOT NULL,
-  `receiver_id` int NOT NULL,
-  `content` text NOT NULL,
-  `created_at` datetime DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- --------------------------------------------------------
 
 --
 -- Structure de la table `profiles`
@@ -205,6 +192,10 @@ ALTER TABLE `dm_messages`
   ADD KEY `conversation_id` (`conversation_id`),
   ADD KEY `sender_id` (`sender_id`);
 
+-- Index composite pour accélérer l'historique DM
+ALTER TABLE `dm_messages`
+  ADD KEY `idx_dm_messages_conversation_created` (`conversation_id`, `created_at`, `id`);
+
 --
 -- Index pour la table `dm_reads`
 --
@@ -234,13 +225,10 @@ ALTER TABLE `messages`
   ADD KEY `channel_id` (`channel_id`),
   ADD KEY `user_id` (`user_id`);
 
---
--- Index pour la table `private_messages`
---
-ALTER TABLE `private_messages`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `sender_id` (`sender_id`),
-  ADD KEY `receiver_id` (`receiver_id`);
+-- Index composite pour accélérer les lectures de salon triées
+ALTER TABLE `messages`
+  ADD KEY `idx_messages_channel_created` (`channel_id`, `created_at`, `id`);
+
 
 --
 -- Index pour la table `profiles`
@@ -261,6 +249,10 @@ ALTER TABLE `servers`
 ALTER TABLE `server_members`
   ADD PRIMARY KEY (`user_id`,`server_id`),
   ADD KEY `server_id` (`server_id`);
+
+-- Index complémentaire pour les vérifications d'accès par serveur
+ALTER TABLE `server_members`
+  ADD KEY `idx_server_members_server_user` (`server_id`, `user_id`);
 
 --
 -- Index pour la table `users`
@@ -304,11 +296,6 @@ ALTER TABLE `invitations`
 ALTER TABLE `messages`
   MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
---
--- AUTO_INCREMENT pour la table `private_messages`
---
-ALTER TABLE `private_messages`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT pour la table `servers`
@@ -372,12 +359,6 @@ ALTER TABLE `messages`
   ADD CONSTRAINT `messages_ibfk_1` FOREIGN KEY (`channel_id`) REFERENCES `channels` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `messages_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
---
--- Contraintes pour la table `private_messages`
---
-ALTER TABLE `private_messages`
-  ADD CONSTRAINT `private_messages_ibfk_1` FOREIGN KEY (`sender_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `private_messages_ibfk_2` FOREIGN KEY (`receiver_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Contraintes pour la table `profiles`

@@ -1,36 +1,22 @@
 <?php
-require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/permissions.php';
 
-header('Content-Type: application/json');
+requireMethod('POST');
+$userId = requireAuthUserId();
+$data = getJsonInput();
 
-// Authentification
-session_start();
-if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'error' => 'Non authentifié']);
-    exit;
+$serverId = (int)($data['server_id'] ?? 0);
+$name = trim((string)($data['name'] ?? ''));
+
+if ($serverId <= 0 || $name === '') {
+    jsonResponse(['success' => false, 'error' => 'Requête invalide'], 400);
 }
 
-$userId = $_SESSION['user_id'];
-
-// Récupération des données
-$data = json_decode(file_get_contents("php://input"), true);
-$server_id = $data['server_id'] ?? null;
-$name = trim($data['name'] ?? '');
-
-if (!$server_id || !$name) {
-    echo json_encode(['success' => false, 'error' => 'Requête invalide']);
-    exit;
+if (!hasPermission($userId, $serverId, ['P2', 'P3'], $pdo)) {
+    jsonResponse(['success' => false, 'error' => 'Permission refusée'], 403);
 }
 
-// Vérification des permissions (P1, P2, P3)
-if (!hasPermission($userId, $server_id, ['P2', 'P3'], $pdo)) {
-    echo json_encode(['success' => false, 'error' => 'Permission refusée']);
-    exit;
-}
+$stmt = $pdo->prepare('INSERT INTO channels (server_id, name) VALUES (?, ?)');
+$stmt->execute([$serverId, $name]);
 
-// Création du channel
-$stmt = $pdo->prepare("INSERT INTO channels (server_id, name) VALUES (?, ?)");
-$stmt->execute([$server_id, $name]);
-
-echo json_encode(['success' => true, 'channel_id' => $pdo->lastInsertId()]);
+jsonResponse(['success' => true, 'channel_id' => (int) $pdo->lastInsertId()], 201);

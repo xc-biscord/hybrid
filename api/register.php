@@ -1,41 +1,58 @@
 <?php
-header("Content-Type: application/json");
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/bootstrap.php';
 
-$data = json_decode(file_get_contents("php://input"), true);
-$username = isset($data['username']) ? trim($data['username']) : '';
-$email = isset($data['email']) ? trim($data['email']) : '';
-$password = isset($data['password']) ? $data['password'] : '';
+requireMethod('POST');
+$data = getJsonInput();
 
-if (!$username || !$email || !$password) {
-    echo json_encode(['error' => 'Missing fields']);
-    exit;
+$username = trim((string)($data['username'] ?? ''));
+$email = trim((string)($data['email'] ?? ''));
+$password = (string)($data['password'] ?? '');
+
+if ($username === '' || $email === '' || $password === '') {
+    jsonResponse(['success' => false, 'error' => 'Champs requis manquants'], 400);
 }
 
-$hash = password_hash($password, PASSWORD_BCRYPT        );
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    jsonResponse(['success' => false, 'error' => 'Email invalide'], 400);
+}
+
+$hash = password_hash($password, PASSWORD_BCRYPT);
 
 try {
-    $stmt = $pdo->prepare("INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)");
+    $pdo->beginTransaction();
+
+    $stmt = $pdo->prepare('INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)');
     $stmt->execute([$username, $email, $hash]);
 
-    $user_id = $pdo->lastInsertId();
-    $_SESSION['user_id'] = $user_id;
+    $userId = (int) $pdo->lastInsertId();
+    $_SESSION['user_id'] = $userId;
 
-    $stmt = $pdo->prepare("INSERT INTO profiles (user_id, avatar_url, bio, status) VALUES (?, ?, '', 'En ligne')");
+    $stmt = $pdo->prepare('INSERT INTO profiles (user_id, avatar_url, bio, status) VALUES (?, ?, ?, ?)');
     $stmt->execute([
-        $user_id,
-        "https://biscord-api-stg.xcsoftworks.com/assets/default-user.png"
+        $userId,
+        'https://biscord-api-stg.xcsoftworks.com/assets/default-user.png',
+        '',
+        'En ligne',
     ]);
 
-    $stmt = $pdo->prepare("INSERT INTO server_members (server_id, user_id) VALUES (?, ?)");
-    $stmt->execute([1, $user_id]);
+    // Inscription auto sur le hub public.
+    $stmt = $pdo->prepare('INSERT IGNORE INTO server_members (server_id, user_id) VALUES (?, ?)');
+    $stmt->execute([1, $userId]);
 
-    $welcomeMessage = "🎉 Bienvenue à @$username sur le Hub Biscord !";
-    $stmt = $pdo->prepare("INSERT INTO messages (channel_id, user_id, content, created_at) VALUES (?, ?, ?, NOW())");
-    $stmt->execute([1, $user_id, $welcomeMessage]);
+    $welcomeMessage = "🎉 Bienvenue à @{$username} sur le Hub Biscord !";
+    $stmt = $pdo->prepare('INSERT INTO messages (channel_id, user_id, content, created_at) VALUES (?, ?, ?, NOW())');
+    $stmt->execute([1, $userId, $welcomeMessage]);
 
-    echo json_encode(['success' => true]);
+    $pdo->commit();
+    jsonResponse(['success' => true], 201);
 } catch (PDOException $e) {
-    http_response_code(400);
-    echo json_encode(['error' => 'SQL error']);
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
+
+    $isDuplicate = ($e->errorInfo[1] ?? null) === 1062;
+    jsonResponse(
+        ['success' => false, 'error' => $isDuplicate ? 'Nom d\'utilisateur ou email déjà utilisé' : 'Erreur SQL'],
+        $isDuplicate ? 409 : 500
+    );
 }

@@ -1,19 +1,19 @@
 <?php
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/bootstrap.php';
 
-$id = $_GET['id'] ?? null;
+requireAuthUserId();
+$serverId = (int)($_GET['id'] ?? 0);
 
-if (!$id) {
-    echo json_encode(['success' => false, 'error' => 'ID manquant']);
-    exit;
+if ($serverId <= 0) {
+    jsonResponse(['success' => false, 'error' => 'ID manquant'], 400);
 }
 
-$stmt = $pdo->prepare("SELECT name FROM servers WHERE id = ?");
-$stmt->execute([$id]);
+$stmt = $pdo->prepare('SELECT name FROM servers WHERE id = ? LIMIT 1');
+$stmt->execute([$serverId]);
 $server = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if ($server) {
-    echo json_encode(['success' => true, 'name' => $server['name']]);
-} else {
-    echo json_encode(['success' => false, 'error' => 'Serveur introuvable']);
+if (!$server) {
+    jsonResponse(['success' => false, 'error' => 'Serveur introuvable'], 404);
 }
+
+jsonResponse(['success' => true, 'name' => $server['name']]);

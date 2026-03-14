@@ -1,34 +1,28 @@
 <?php
-require_once __DIR__ . '/../config/config.php';
-header('Content-Type: application/json');
+require_once __DIR__ . '/bootstrap.php';
 
-if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'error' => 'Non authentifié']);
-    exit;
-}
+requireMethod('POST');
+$userId = requireAuthUserId();
+$data = getJsonInput();
 
+$channelId = (int) ($data['channel_id'] ?? 0);
+$content = trim((string)($data['content'] ?? ''));
 
-$data = json_decode(file_get_contents("php://input"), true);
-$channel_id = $data['channel_id'] ?? null;
-$content = trim($data['content'] ?? '');
-
-if (!$channel_id || !$content) {
-    echo json_encode(['success' => false, 'error' => 'Message vide ou channel manquant']);
-    exit;
+if ($channelId <= 0 || $content === '') {
+    jsonResponse(['success' => false, 'error' => 'Message vide ou channel manquant'], 400);
 }
 
 try {
-    $check = $pdo->prepare("SELECT id FROM channels WHERE id = ?");
-    $check->execute([$channel_id]);
-    if (!$check->fetch()) {
-        echo json_encode(['success' => false, 'error' => 'Channel inexistant']);
-        exit;
+    $check = $pdo->prepare('SELECT 1 FROM channels WHERE id = ? LIMIT 1');
+    $check->execute([$channelId]);
+    if (!$check->fetchColumn()) {
+        jsonResponse(['success' => false, 'error' => 'Channel inexistant'], 404);
     }
 
-    $stmt = $pdo->prepare("INSERT INTO messages (channel_id, user_id, content) VALUES (?, ?, ?)");
-    $stmt->execute([$channel_id, $_SESSION['user_id'], $content]);
+    $stmt = $pdo->prepare('INSERT INTO messages (channel_id, user_id, content) VALUES (?, ?, ?)');
+    $stmt->execute([$channelId, $userId, $content]);
 
-    echo json_encode(['success' => true]);
-} catch (Exception $e) {
-    echo json_encode(['success' => false, 'error' => 'Erreur SQL : ' . $e->getMessage()]);
+    jsonResponse(['success' => true, 'message_id' => (int) $pdo->lastInsertId()], 201);
+} catch (PDOException $e) {
+    jsonResponse(['success' => false, 'error' => 'Erreur SQL'], 500);
 }
