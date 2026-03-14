@@ -1,20 +1,13 @@
 <?php
-session_start();
-header("Content-Type: application/json");
-require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/bootstrap.php';
 
-if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['error' => 'Not logged in']);
-    exit;
-}
-
-$user_id = $_SESSION['user_id'];
+$userId = requireAuthUserId();
 
 try {
-    $stmt = $pdo->prepare("
-        SELECT 
+    $stmt = $pdo->prepare('
+        SELECT
             c.id AS conversation_id,
-            MAX(m.sender_id) AS sender_id,
+            m.sender_id,
             COUNT(*) AS unread_count,
             u.username,
             p.avatar_url,
@@ -27,13 +20,13 @@ try {
         WHERE (c.user1_id = :uid OR c.user2_id = :uid)
           AND m.sender_id != :uid
           AND (r.last_read_at IS NULL OR m.created_at > r.last_read_at)
-        GROUP BY c.id, u.id, u.username, p.avatar_url
+        GROUP BY c.id, m.sender_id, u.username, p.avatar_url
         ORDER BY last_message DESC
-    ");
-    $stmt->execute(['uid' => $user_id]);
+    ');
+    $stmt->execute(['uid' => $userId]);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    echo json_encode(['unread_conversations' => $rows]);
+    jsonResponse(['success' => true, 'unread_conversations' => $rows]);
 } catch (PDOException $e) {
-    echo json_encode(['error' => 'DB error', 'debug' => $e->getMessage()]);
+    jsonResponse(['success' => false, 'error' => 'Erreur DB'], 500);
 }
