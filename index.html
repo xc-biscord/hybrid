@@ -191,11 +191,9 @@
 
         try {
           const res = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "X-Internal-Ping": "1" },
-            body: endpoint === "login"
-              ? JSON.stringify({ username: "___", password: "___" })
-              : JSON.stringify({ channel_id: 20, content: "ping" })
+            method: "GET",
+            credentials: "include",
+            headers: { "X-Internal-Ping": "1" }
           });
 
           const time = performance.now() - start;
@@ -233,9 +231,12 @@
 
 
       function startStatusLoop() {
+        pingEndpoint("status-login", "/api/check_auth.php", "login");
+        pingEndpoint("status-send", "/api/health.php", "send");
+
         setInterval(() => {
-          pingEndpoint("status-login", "api/login.php", "login");
-          pingEndpoint("status-send", "api/send_message.php", "send");
+          pingEndpoint("status-login", "/api/check_auth.php", "login");
+          pingEndpoint("status-send", "/api/health.php", "send");
         }, 5000);
       }
 
