@@ -140,29 +140,33 @@ document.addEventListener("DOMContentLoaded", () => {
     const username = document.getElementById("identifiant").value;
     const password = document.getElementById("mdp-connexion").value;
 
-    const res = await fetch(`${API_BASE}/login.php`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ username, password }),
-    });
-
-    const text = await res.text();
-    let data;
     try {
-      data = JSON.parse(text);
-    } catch {
-      showToast("Erreur", "Réponse du serveur invalide.");
-      return;
-    }
+      const res = await fetch(`${API_BASE}/login.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ username, password }),
+      });
 
-    if (data.success) {
-      showToast("✅ Connexion réussie !", "Redirection en cours...");
-      setTimeout(() => {
-        window.location.href = "/accueil.html";
-      }, 1500);
-    } else {
-      showToast("Erreur", data.error || "Échec de la connexion.");
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        showToast("Erreur", "Réponse du serveur invalide.");
+        return;
+      }
+
+      if (data.success) {
+        showToast("✅ Connexion réussie !", "Redirection en cours...");
+        setTimeout(() => {
+          window.location.href = "/accueil.html";
+        }, 1500);
+      } else {
+        showToast("Erreur", data.error || "Échec de la connexion.");
+      }
+    } catch {
+      showToast("Erreur réseau", "Impossible de joindre l'API. Vérifie l'URL ou la configuration CORS.");
     }
   });
 });
