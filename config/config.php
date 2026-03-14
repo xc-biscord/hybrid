@@ -1,6 +1,6 @@
 <?php
 $DB_HOST = 'localhost';
-$DB_NAME = 'biscord_db';
+$DB_NAME = 'biscord_db_tests';
 $DB_USER = 'adminweb';
 $DB_PASS = 'MazdeoAchaqui';
 
