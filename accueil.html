@@ -11,13 +11,13 @@
 
 <body>
   <div class="accueil-container">
-    <a href="serveurs" class="btn-acceder-biscord">🔗 Accéder à Biscord</a>
+    <a href="serveurs.html" class="btn-acceder-biscord">🔗 Accéder à Biscord</a>
 
     <h1>Hey, re sur <span class="biscord">Biscord, <span id="username"></span> !</span></h1>
 
     <section class="profil-card">
       <h2>👤 Profil utilisateur</h2>
-      <img id="avatar" src="" alt="Avatar" class="avatar">
+      <img id="avatar" src="assets/default-user.png" alt="Avatar" class="avatar" onerror="this.onerror=null;this.src='assets/default-user.png';">
     </section>
 
     <section class="modifier-profil">
@@ -90,7 +90,14 @@
       if (data.success) {
         const p = data.profile;
         document.getElementById('username').textContent = p.username;
-        document.getElementById('avatar').src = p.avatar_url;
+        const avatarUrl = p.avatar_url && p.avatar_url.trim() ? p.avatar_url : 'assets/default-user.png';
+        const avatarEl = document.getElementById('avatar');
+        avatarEl.src = avatarUrl;
+        avatarEl.onerror = () => {
+          avatarEl.onerror = null;
+          avatarEl.src = 'assets/default-user.png';
+        };
+
         document.getElementById('new-bio').value = p.bio || "";
         document.getElementById('new-avatar').value = p.avatar_url || "";
         document.getElementById('new-status').value = p.status || "";
