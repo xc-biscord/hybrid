@@ -90,8 +90,18 @@ Cela permet de migrer endpoint par endpoint sans big-bang.
 
 - `api/create_server.php` → `ServerController::create`
 - `api/get_servers.php` → `ServerController::index`
+- `api/get_server_name.php` → `ServerController::showName`
 - `api/get_user_servers.php` → `AdminUserController::listUserServers`
 - `api/get_all_users.php` → `AdminUserController::listUsers`
+
+## Conventions techniques posées
+
+- **Namespaces backend**: toute nouvelle classe backend passe par `App\*` (autoload `app/Support/Autoload.php`).
+- **Controllers = contrat HTTP interne**: les controllers retournent `['statusCode' => int, 'payload' => array]`.
+- **Endpoints legacy = adaptateurs**: ils appellent `apiKernel()` + `respondFromController()` et ne font plus de SQL direct.
+- **Services sans contexte HTTP**: aucun `$_SESSION`, `$_GET`, `$_POST` dans les services.
+- **Repositories orientés cas d’usage**: méthodes explicites (`findByMemberUserId`, `listServersForUser`, `find`), pas d’API SQL générique.
+- **Compatibilité Laravel**: séparation Controller/Service/Repository/Model et middleware dédiée conservées à l’identique lors du passage vers `app/Http/*`.
 
 ## Conventions de migration endpoint (Laravel-ready)
 

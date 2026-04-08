@@ -37,4 +37,22 @@ final class ServerController extends BaseApiController
             return $this->error('Erreur serveur', 500);
         }
     }
+
+    public function showName(int $serverId): array
+    {
+        if ($serverId <= 0) {
+            return $this->error('ID manquant', 400);
+        }
+
+        try {
+            $server = $this->serverService->getServerById($serverId);
+            if ($server === null) {
+                return $this->error('Serveur introuvable', 404);
+            }
+
+            return $this->success(['name' => $server->name]);
+        } catch (PDOException $e) {
+            return $this->error('Erreur serveur', 500);
+        }
+    }
 }
