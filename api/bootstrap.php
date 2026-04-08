@@ -1,6 +1,10 @@
 <?php
 
 require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../app/Support/Autoload.php';
+
+use App\Support\ApiKernel;
+
 header('Content-Type: application/json; charset=utf-8');
 
 function jsonResponse(array $payload, int $statusCode = 200): void
@@ -8,6 +12,14 @@ function jsonResponse(array $payload, int $statusCode = 200): void
     http_response_code($statusCode);
     echo json_encode($payload, JSON_UNESCAPED_UNICODE);
     exit;
+}
+
+function respondFromController(array $result): void
+{
+    $statusCode = (int) ($result['statusCode'] ?? 200);
+    $payload = (array) ($result['payload'] ?? []);
+
+    jsonResponse($payload, $statusCode);
 }
 
 function requireMethod(string $method): void
@@ -39,4 +51,11 @@ function requireAuthUserId(): int
     }
 
     return (int) $_SESSION['user_id'];
+}
+
+function apiKernel(): ApiKernel
+{
+    global $pdo;
+
+    return new ApiKernel($pdo);
 }
