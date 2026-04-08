@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Repositories\ServerMemberRepository;
 use App\Repositories\ServerRepository;
+use App\Models\Server;
 use PDO;
 use PDOException;
 
@@ -47,5 +48,10 @@ final class ServerService
     public function listUserServers(int $userId): array
     {
         return $this->serverRepository->findByMemberUserId($userId);
+    }
+
+    public function getServerById(int $serverId): ?Server
+    {
+        return $this->serverRepository->find($serverId);
     }
 }
