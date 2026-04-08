@@ -16,10 +16,8 @@ final class ServerController extends BaseApiController
 
     public function create(int $userId, array $data): array
     {
-        $name = (string) ($data['nom'] ?? $data['name'] ?? '');
-
         try {
-            $serverId = $this->serverService->createServer($userId, $name);
+            $serverId = $this->serverService->createServerFromPayload($userId, $data);
             return $this->success(['server_id' => $serverId], 201);
         } catch (InvalidArgumentException $e) {
             return $this->error($e->getMessage(), 400);

@@ -19,6 +19,13 @@ final class ServerService
     ) {
     }
 
+    public function createServerFromPayload(int $ownerId, array $data): int
+    {
+        $name = $this->extractCreateServerName($data);
+
+        return $this->createServer($ownerId, $name);
+    }
+
     public function createServer(int $ownerId, string $name): int
     {
         $trimmedName = trim($name);
@@ -53,5 +60,10 @@ final class ServerService
     public function getServerById(int $serverId): ?Server
     {
         return $this->serverRepository->find($serverId);
+    }
+
+    private function extractCreateServerName(array $data): string
+    {
+        return (string) ($data['nom'] ?? $data['name'] ?? '');
     }
 }
