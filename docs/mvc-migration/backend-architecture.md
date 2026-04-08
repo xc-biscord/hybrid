@@ -57,6 +57,25 @@ app/
   - `Autoload.php`: autoload PSR-4-like pour namespace `App\`.
   - `ApiKernel.php`: assemblage manuel des dépendances (préfigure un container DI Laravel).
 
+## Squelettes implémentés
+
+### Controllers
+- `BaseApiController`: helpers `success()` / `error()` pour homogénéiser les retours.
+- `ServerController`: orchestration `create` + `index` pour la gestion des serveurs.
+- `AdminUserController`: lecture admin des utilisateurs et des serveurs d’un utilisateur.
+
+### Services
+- `ServerService`: cas d’usage serveur (`createServer`, `listUserServers`) avec transaction.
+- `UserServerService`: politique d’accès admin + lecture des serveurs d’un utilisateur.
+
+### Repositories
+- `ServerRepository`: persistance serveur (`create`, `findByMemberUserId`, `find`).
+- `ServerMemberRepository`: persistance membre (`addMember`, `listServersForUser`).
+
+### Models
+- `Server`: modèle domaine minimal (id, name, ownerId).
+- `ServerMember`: modèle domaine minimal (serverId, userId, role).
+
 ## Stratégie d’intégration progressive avec les endpoints legacy
 
 Les fichiers `/api/*.php` restent les points d’entrée publics, mais deviennent des **adaptateurs HTTP**:
@@ -74,30 +93,41 @@ Cela permet de migrer endpoint par endpoint sans big-bang.
 - `api/get_user_servers.php` → `AdminUserController::listUserServers`
 - `api/get_all_users.php` → `AdminUserController::listUsers`
 
+## Conventions de migration endpoint (Laravel-ready)
+
+### Convention A — endpoint legacy
+- L’URL `api/*.php` reste inchangée.
+- L’endpoint ne contient que: garde-fous HTTP + adaptation entrée/sortie.
+- Toute règle métier va dans Service/Repository.
+
+### Convention B — payload API
+- Réponse normalisée côté controller:
+  - succès: `{ success: true, ... }`
+  - erreur: `{ success: false, error: "..." }`
+- Les clés métiers historiques sont conservées pour ne pas casser le front.
+
+### Convention C — dépendances
+- `ApiKernel` centralise le wiring temporaire.
+- Éviter l’instanciation directe de PDO/services dans les endpoints.
+
 ## Mapping vers concepts Laravel (cible)
 
-- `app/Controllers/*` → `app/Http/Controllers/*`
-- `app/Services/*` → services applicatifs (inchangés ou via `app/Services`)
-- `app/Repositories/*` → repositories + Query Builder/Eloquent
-- `app/Models/*` → modèles Eloquent
-- `app/Middleware/*` → `app/Http/Middleware/*`
-- `app/Support/ApiKernel.php` → remplacé par le container IoC Laravel + Service Providers
-- `/api/*.php` → routes Laravel (`routes/api.php`) pointant vers controllers
-
-## Conventions de migration (à appliquer endpoint par endpoint)
-
-1. **Ne pas changer l’URL** de l’endpoint legacy.
-2. Réduire le code endpoint à validation d’entrée + délégation contrôleur.
-3. Déplacer le SQL dans un repository dédié.
-4. Déplacer les règles métiers dans un service.
-5. Uniformiser réponses via `BaseApiController`.
-6. Garder la compatibilité payload (`success`, `error`, clés métiers actuelles) tant que le front n’est pas migré.
+| Structure Biscord actuelle | Cible Laravel | Notes migration |
+|---|---|---|
+| `app/Controllers/*` | `app/Http/Controllers/*` | Méthodes de controllers réutilisables quasi à l’identique |
+| `app/Services/*` | `app/Services/*` | Conserve la logique métier hors contrôleur |
+| `app/Repositories/*` | Repositories + Eloquent/Query Builder | SQL brut migrable progressivement |
+| `app/Models/*` | `app/Models/*` (Eloquent) | DTO actuels deviennent entités Eloquent |
+| `app/Middleware/*` | `app/Http/Middleware/*` | Contrôles d’accès migrables en middleware Laravel |
+| `app/Support/ApiKernel.php` | Container IoC + Service Providers | Remplacé quand le bootstrap Laravel prend le relais |
+| `/api/*.php` | `routes/api.php` | Même contrats d’API, pointés vers controllers Laravel |
 
 ## Zones prêtes pour la prochaine vague
 
 - Domaine `Server` (création + listing) : base MVC en place.
 - Domaine admin users/servers : points d’entrée branchés.
 - Infrastructure de wiring (`ApiKernel`) : prête pour extension incrémentale.
+- Contrat JSON de base (`BaseApiController`) : socle commun pour nouveaux endpoints.
 
 ## Ce qui reste legacy (non migré)
 
