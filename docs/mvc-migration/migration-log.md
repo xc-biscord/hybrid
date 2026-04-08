@@ -1,5 +1,25 @@
 # Migration log (MVC) — Biscord
 
+## 2026-04-08 — Slice Servers (`get_servers` / `create_server`)
+
+### Objectif de l’itération
+Extraire proprement le slice "servers" vers MVC en conservant strictement les contrats externes.
+
+### Actions réalisées
+- Endpoint adapters conservés fins (`api/get_servers.php`, `api/create_server.php`).
+- Extraction explicite de la compatibilité payload `nom` / `name` côté `ServerService`.
+- Consolidation de la logique métier/transactionnelle dans `ServerService`.
+- SQL maintenu dans `ServerRepository`.
+- Documentation de slice ajoutée: `docs/mvc-migration/slices/servers.md`.
+
+### Changements code runtime
+- Pas de changement de routes publiques.
+- Pas de changement de schéma de payload de succès/erreur.
+- Pas de changement de codes HTTP visibles.
+
+### Résultat
+- Slice servers aligné MVC, réutilisable comme patron pour channels/memberships, sans régression fonctionnelle attendue.
+
 ## 2026-04-08 — Baseline documentaire initiale
 
 ### Objectif de l’itération
@@ -27,4 +47,3 @@ Créer une base documentaire fiable pour une migration incrémentale vers MVC, s
 - Introduire une couche MVC "façade" endpoint par endpoint (adapter/controller minimal),
 - en commençant par les endpoints les plus sollicités côté front,
 - sans modifier les contrats externes.
-
