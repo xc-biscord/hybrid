@@ -18,6 +18,23 @@ final class ServerMemberRepository
         $stmt->execute([$serverId, $userId, $role]);
     }
 
+    public function isMember(int $serverId, int $userId): bool
+    {
+        $stmt = $this->pdo->prepare('SELECT 1 FROM server_members WHERE server_id = ? AND user_id = ? LIMIT 1');
+        $stmt->execute([$serverId, $userId]);
+
+        return $stmt->fetchColumn() !== false;
+    }
+
+    public function findRole(int $userId, int $serverId): ?string
+    {
+        $stmt = $this->pdo->prepare('SELECT role FROM server_members WHERE user_id = ? AND server_id = ? LIMIT 1');
+        $stmt->execute([$userId, $serverId]);
+        $role = $stmt->fetchColumn();
+
+        return $role === false ? null : (string) $role;
+    }
+
     /**
      * @return array<int, array{id:int,name:string}>
      */
