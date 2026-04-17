@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Services\UserServerService;
-use PDO;
 use PDOException;
 
 final class AdminUserController extends BaseApiController
 {
     public function __construct(
-        private PDO $pdo,
         private UserServerService $userServerService,
     ) {
     }
@@ -23,16 +21,7 @@ final class AdminUserController extends BaseApiController
         }
 
         try {
-            $stmt = $this->pdo->query(
-                'SELECT
-                    u.id, u.username, u.email, u.created_at,
-                    gp.permission_level
-                FROM users u
-                LEFT JOIN global_permissions gp ON u.id = gp.user_id
-                ORDER BY u.created_at DESC'
-            );
-
-            $users = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $users = $this->userServerService->listUsers();
             return $this->success(['users' => $users]);
         } catch (PDOException $e) {
             return $this->error('Erreur serveur', 500);
