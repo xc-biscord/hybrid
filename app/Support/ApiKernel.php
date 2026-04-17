@@ -7,6 +7,7 @@ namespace App\Support;
 use App\Controllers\AccountController;
 use App\Controllers\AdminUserController;
 use App\Controllers\ChannelController;
+use App\Controllers\MessageController;
 use App\Controllers\AuthController;
 use App\Controllers\ServerController;
 use App\Middleware\AdminMiddleware;
@@ -18,6 +19,7 @@ use App\Repositories\ServerRepository;
 use App\Repositories\UserRepository;
 use App\Services\AccountService;
 use App\Services\ChannelService;
+use App\Services\MessageService;
 use App\Services\RegisterService;
 use App\Services\ServerService;
 use App\Services\UserServerService;
@@ -84,5 +86,15 @@ final class ApiKernel
         $service = new UserServerService($adminMiddleware, $serverMemberRepository, $userRepository);
 
         return new AdminUserController($service);
+    }
+
+    public function messageController(): MessageController
+    {
+        $adminMiddleware = new AdminMiddleware($this->pdo);
+        $messageRepository = new MessageRepository($this->pdo);
+        $serverMemberRepository = new ServerMemberRepository($this->pdo);
+        $service = new MessageService($messageRepository, $serverMemberRepository, $adminMiddleware);
+
+        return new MessageController($service);
     }
 }
