@@ -63,4 +63,21 @@ final class UserRepository
         $stmt = $this->pdo->prepare('UPDATE users SET password_hash = ? WHERE id = ?');
         $stmt->execute([$passwordHash, $userId]);
     }
+
+    /**
+     * @return array<int, array{id:int,username:string,email:string,created_at:string,permission_level:?string}>
+     */
+    public function listAllWithGlobalPermission(): array
+    {
+        $stmt = $this->pdo->query(
+            'SELECT
+                u.id, u.username, u.email, u.created_at,
+                gp.permission_level
+            FROM users u
+            LEFT JOIN global_permissions gp ON u.id = gp.user_id
+            ORDER BY u.created_at DESC'
+        );
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
 }

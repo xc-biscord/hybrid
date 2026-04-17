@@ -80,8 +80,9 @@ final class ApiKernel
     {
         $adminMiddleware = new AdminMiddleware($this->pdo);
         $serverMemberRepository = new ServerMemberRepository($this->pdo);
-        $service = new UserServerService($adminMiddleware, $serverMemberRepository);
+        $userRepository = new UserRepository($this->pdo);
+        $service = new UserServerService($adminMiddleware, $serverMemberRepository, $userRepository);
 
-        return new AdminUserController($this->pdo, $service);
+        return new AdminUserController($service);
     }
 }
