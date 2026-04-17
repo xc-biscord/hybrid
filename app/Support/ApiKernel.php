@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support;
 
+use App\Controllers\AccountController;
 use App\Controllers\AdminUserController;
 use App\Controllers\ChannelController;
 use App\Controllers\ServerController;
@@ -11,15 +12,27 @@ use App\Middleware\AdminMiddleware;
 use App\Repositories\ChannelRepository;
 use App\Repositories\ServerMemberRepository;
 use App\Repositories\ServerRepository;
+use App\Repositories\UserRepository;
+use App\Services\AccountService;
 use App\Services\ChannelService;
 use App\Services\ServerService;
 use App\Services\UserServerService;
+use App\Validators\AccountUpdateValidator;
 use PDO;
 
 final class ApiKernel
 {
     public function __construct(private PDO $pdo)
     {
+    }
+
+    public function accountController(): AccountController
+    {
+        $userRepository = new UserRepository($this->pdo);
+        $service = new AccountService($userRepository);
+        $validator = new AccountUpdateValidator();
+
+        return new AccountController($service, $validator);
     }
 
     public function serverController(): ServerController
