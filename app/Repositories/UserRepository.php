@@ -12,6 +12,15 @@ final class UserRepository
     {
     }
 
+
+    public function create(string $username, string $email, string $passwordHash): int
+    {
+        $stmt = $this->pdo->prepare('INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)');
+        $stmt->execute([$username, $email, $passwordHash]);
+
+        return (int) $this->pdo->lastInsertId();
+    }
+
     public function updateIdentityFields(int $userId, ?string $username, ?string $email): void
     {
         $fields = [];

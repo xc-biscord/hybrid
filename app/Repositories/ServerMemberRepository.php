@@ -18,6 +18,13 @@ final class ServerMemberRepository
         $stmt->execute([$serverId, $userId, $role]);
     }
 
+
+    public function addMemberIgnore(int $serverId, int $userId): void
+    {
+        $stmt = $this->pdo->prepare('INSERT IGNORE INTO server_members (server_id, user_id) VALUES (?, ?)');
+        $stmt->execute([$serverId, $userId]);
+    }
+
     public function isMember(int $serverId, int $userId): bool
     {
         $stmt = $this->pdo->prepare('SELECT 1 FROM server_members WHERE server_id = ? AND user_id = ? LIMIT 1');
