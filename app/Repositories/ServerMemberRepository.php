@@ -58,4 +58,35 @@ final class ServerMemberRepository
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
+
+    /**
+     * @return array<int, array{id:int,username:string,role:string}>
+     */
+    public function listUsersWithEffectiveRolesInServer(int $serverId): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT u.id, u.username,
+                CASE WHEN gp.user_id IS NOT NULL THEN "P1" ELSE m.role END AS role
+            FROM server_members m
+            JOIN users u ON u.id = m.user_id
+            LEFT JOIN global_permissions gp ON gp.user_id = u.id AND gp.permission_level = "P1"
+            WHERE m.server_id = ?
+            ORDER BY u.username ASC'
+        );
+        $stmt->execute([$serverId]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+
+    public function updateRole(int $serverId, int $targetUserId, string $newRole): void
+    {
+        $stmt = $this->pdo->prepare('UPDATE server_members SET role = ? WHERE user_id = ? AND server_id = ?');
+        $stmt->execute([$newRole, $targetUserId, $serverId]);
+    }
+
+    public function removeMember(int $serverId, int $targetUserId): void
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM server_members WHERE user_id = ? AND server_id = ?');
+        $stmt->execute([$targetUserId, $serverId]);
+    }
 }
