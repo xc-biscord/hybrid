@@ -7,12 +7,14 @@ namespace App\Support;
 use App\Controllers\AccountController;
 use App\Controllers\AdminUserController;
 use App\Controllers\ChannelController;
+use App\Controllers\DmController;
 use App\Controllers\MessageController;
 use App\Controllers\AuthController;
 use App\Controllers\RoleModerationController;
 use App\Controllers\ServerController;
 use App\Middleware\AdminMiddleware;
 use App\Repositories\ChannelRepository;
+use App\Repositories\DmRepository;
 use App\Repositories\ServerMemberRepository;
 use App\Repositories\GlobalPermissionRepository;
 use App\Repositories\MessageRepository;
@@ -21,6 +23,7 @@ use App\Repositories\ServerRepository;
 use App\Repositories\UserRepository;
 use App\Services\AccountService;
 use App\Services\ChannelService;
+use App\Services\DmService;
 use App\Services\MessageService;
 use App\Services\ModerationService;
 use App\Services\PermissionService;
@@ -111,5 +114,13 @@ final class ApiKernel
         $service = new MessageService($messageRepository, $serverMemberRepository, $adminMiddleware);
 
         return new MessageController($service);
+    }
+
+    public function dmController(): DmController
+    {
+        $dmRepository = new DmRepository($this->pdo);
+        $service = new DmService($dmRepository);
+
+        return new DmController($service);
     }
 }
