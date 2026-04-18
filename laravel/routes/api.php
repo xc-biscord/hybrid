@@ -9,6 +9,11 @@ use App\Http\Controllers\DmController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\RoleModerationController;
 use App\Http\Controllers\ServerController;
+use App\Http\Requests\CreateChannelRequest;
+use App\Http\Requests\CreateServerRequest;
+use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\SendDmRequest;
+use App\Http\Requests\SendMessageRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
@@ -18,8 +23,8 @@ use Illuminate\Support\Facades\Route;
 | Register
 |--------------------------------------------------------------------------
 */
-Route::post('/register.php', function (Request $request, AuthController $controller) {
-    return $controller->register($request->json()->all());
+Route::post('/register.php', function (RegisterRequest $request, AuthController $controller) {
+    return $controller->register($request->validated());
 });
 
 Route::middleware(['auth.session'])->group(function (): void {
@@ -33,9 +38,9 @@ Route::middleware(['auth.session'])->group(function (): void {
         return $controller->index($userId);
     });
 
-    Route::post('/create_server.php', function (Request $request, ServerController $controller) {
+    Route::post('/create_server.php', function (CreateServerRequest $request, ServerController $controller) {
         $userId = (int) $request->session()->get('user_id', 0);
-        return $controller->create($userId, $request->json()->all());
+        return $controller->create($userId, $request->validated());
     });
 
     Route::get('/get_server_name.php', function (Request $request, ServerController $controller) {
@@ -55,9 +60,9 @@ Route::middleware(['auth.session'])->group(function (): void {
         return $controller->index($userId, $serverId);
     });
 
-    Route::post('/create_channel.php', function (Request $request, ChannelController $controller) {
+    Route::post('/create_channel.php', function (CreateChannelRequest $request, ChannelController $controller) {
         $userId = (int) $request->session()->get('user_id', 0);
-        return $controller->create($userId, $request->json()->all());
+        return $controller->create($userId, $request->validated());
     });
 
     /*
@@ -72,9 +77,9 @@ Route::middleware(['auth.session'])->group(function (): void {
         return $controller->index($userId, $channelId);
     });
 
-    Route::post('/send_message.php', function (Request $request, MessageController $controller) {
+    Route::post('/send_message.php', function (SendMessageRequest $request, MessageController $controller) {
         $userId = (int) $request->session()->get('user_id', 0);
-        return $controller->create($userId, $request->json()->all());
+        return $controller->create($userId, $request->validated());
     });
 
     Route::any('/delete_message.php', function (Request $request, MessageController $controller) {
@@ -104,9 +109,9 @@ Route::middleware(['auth.session'])->group(function (): void {
         return $controller->messages($userId, $conversationId);
     });
 
-    Route::post('/send_dm.php', function (Request $request, DmController $controller) {
+    Route::post('/send_dm.php', function (SendDmRequest $request, DmController $controller) {
         $userId = (int) $request->session()->get('user_id', 0);
-        return $controller->send($userId, $request->json()->all());
+        return $controller->send($userId, $request->validated());
     });
 
     Route::get('/get_dm_notifications.php', function (Request $request, DmController $controller) {
