@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
+use Illuminate\Support\Facades\DB;
 use PDO;
 
 final class MessageRepository
@@ -12,12 +13,14 @@ final class MessageRepository
     {
     }
 
+    // PDO conservé : utilise NOW() côté SQL, hors périmètre de la migration initiale
     public function createWithCurrentTimestamp(int $channelId, int $userId, string $content): void
     {
         $stmt = $this->pdo->prepare('INSERT INTO messages (channel_id, user_id, content, created_at) VALUES (?, ?, ?, NOW())');
         $stmt->execute([$channelId, $userId, $content]);
     }
 
+    // PDO conservé : pattern fetchColumn + LIMIT 1, requête simple mais hors liste cible
     public function channelExists(int $channelId): bool
     {
         $check = $this->pdo->prepare('SELECT 1 FROM channels WHERE id = ? LIMIT 1');
@@ -26,6 +29,7 @@ final class MessageRepository
         return $check->fetchColumn() !== false;
     }
 
+    // PDO conservé : JOIN de contrôle d'accès, requête sensible aux permissions
     public function userCanReadChannelMessages(int $channelId, int $userId): bool
     {
         $access = $this->pdo->prepare('
@@ -45,27 +49,28 @@ final class MessageRepository
      */
     public function findByChannelId(int $channelId): array
     {
-        $stmt = $this->pdo->prepare('
-            SELECT m.id, m.content, m.created_at, u.username, u.id AS user_id, p.avatar_url
-            FROM messages m
-            JOIN users u ON u.id = m.user_id
-            LEFT JOIN profiles p ON p.user_id = u.id
-            WHERE m.channel_id = ?
-            ORDER BY m.created_at ASC, m.id ASC
-        ');
-        $stmt->execute([$channelId]);
-
-        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        return DB::table('messages as m')
+            ->join('users as u', 'u.id', '=', 'm.user_id')
+            ->leftJoin('profiles as p', 'p.user_id', '=', 'u.id')
+            ->where('m.channel_id', $channelId)
+            ->orderBy('m.created_at')
+            ->orderBy('m.id')
+            ->select('m.id', 'm.content', 'm.created_at', 'u.username', 'u.id as user_id', 'p.avatar_url')
+            ->get()
+            ->map(fn(object $r): array => (array) $r)
+            ->all();
     }
 
     public function create(int $channelId, int $userId, string $content): int
     {
-        $stmt = $this->pdo->prepare('INSERT INTO messages (channel_id, user_id, content) VALUES (?, ?, ?)');
-        $stmt->execute([$channelId, $userId, $content]);
-
-        return (int) $this->pdo->lastInsertId();
+        return (int) DB::table('messages')->insertGetId([
+            'channel_id' => $channelId,
+            'user_id'    => $userId,
+            'content'    => $content,
+        ]);
     }
 
+    // PDO conservé : JOIN messages+channels, migration prévue en phase 2
     /**
      * @return array{channel_id:int,server_id:int}|null
      */
@@ -81,10 +86,11 @@ final class MessageRepository
 
         return [
             'channel_id' => (int) $row['channel_id'],
-            'server_id' => (int) $row['server_id'],
+            'server_id'  => (int) $row['server_id'],
         ];
     }
 
+    // PDO conservé : DELETE simple, migration prévue en phase 2
     public function deleteById(int $messageId): void
     {
         $stmt = $this->pdo->prepare('DELETE FROM messages WHERE id = ?');
