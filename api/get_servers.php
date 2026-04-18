@@ -1,7 +1,8 @@
 <?php
 require_once __DIR__ . '/bootstrap.php';
+require_once __DIR__ . '/laravel_proxy.php';
 
 $userId = requireAuthUserId();
-$controller = apiKernel()->serverController();
 
-respondFromController($controller->index($userId));
+$controller = laravelMake(\App\Http\Controllers\ServerController::class);
+respondFromJsonResponse($controller->index($userId));
