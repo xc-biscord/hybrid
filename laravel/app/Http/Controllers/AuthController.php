@@ -15,22 +15,13 @@ final class AuthController extends BaseApiController
     }
 
     /**
-     * @param array<string, mixed> $payload
-     * @return array{statusCode:int,payload:array<string,mixed>}
+     * @param array<string, mixed> $payload Pre-validated by RegisterRequest.
      */
     public function register(array $payload): JsonResponse
     {
         $username = trim((string) ($payload['username'] ?? ''));
-        $email = trim((string) ($payload['email'] ?? ''));
+        $email    = trim((string) ($payload['email'] ?? ''));
         $password = (string) ($payload['password'] ?? '');
-
-        if ($username === '' || $email === '' || $password === '') {
-            return $this->error('Champs requis manquants', 400);
-        }
-
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return $this->error('Email invalide', 400);
-        }
 
         try {
             $this->registerService->register($username, $email, $password);
