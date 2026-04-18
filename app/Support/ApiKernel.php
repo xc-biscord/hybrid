@@ -9,10 +9,12 @@ use App\Controllers\AdminUserController;
 use App\Controllers\ChannelController;
 use App\Controllers\MessageController;
 use App\Controllers\AuthController;
+use App\Controllers\RoleModerationController;
 use App\Controllers\ServerController;
 use App\Middleware\AdminMiddleware;
 use App\Repositories\ChannelRepository;
 use App\Repositories\ServerMemberRepository;
+use App\Repositories\GlobalPermissionRepository;
 use App\Repositories\MessageRepository;
 use App\Repositories\ProfileRepository;
 use App\Repositories\ServerRepository;
@@ -20,6 +22,8 @@ use App\Repositories\UserRepository;
 use App\Services\AccountService;
 use App\Services\ChannelService;
 use App\Services\MessageService;
+use App\Services\ModerationService;
+use App\Services\PermissionService;
 use App\Services\RegisterService;
 use App\Services\ServerService;
 use App\Services\UserServerService;
@@ -86,6 +90,17 @@ final class ApiKernel
         $service = new UserServerService($adminMiddleware, $serverMemberRepository, $userRepository);
 
         return new AdminUserController($service);
+    }
+
+
+    public function roleModerationController(): RoleModerationController
+    {
+        $serverMemberRepository = new ServerMemberRepository($this->pdo);
+        $globalPermissionRepository = new GlobalPermissionRepository($this->pdo);
+        $permissionService = new PermissionService($globalPermissionRepository, $serverMemberRepository);
+        $moderationService = new ModerationService($permissionService, $serverMemberRepository);
+
+        return new RoleModerationController($moderationService);
     }
 
     public function messageController(): MessageController
