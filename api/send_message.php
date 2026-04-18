@@ -1,9 +1,10 @@
 <?php
 require_once __DIR__ . '/bootstrap.php';
+require_once __DIR__ . '/laravel_proxy.php';
 
 requireMethod('POST');
 $userId = requireAuthUserId();
 $data = getJsonInput();
 
-$controller = apiKernel()->messageController();
-respondFromController($controller->create($userId, $data));
+$controller = laravelMake(\App\Http\Controllers\MessageController::class);
+respondFromJsonResponse($controller->create($userId, $data));
