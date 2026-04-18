@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'auth.session' => AuthSessionMiddleware::class,
             'ensure.global.admin' => EnsureGlobalAdmin::class,
+            'p1.only' => EnsureGlobalAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
