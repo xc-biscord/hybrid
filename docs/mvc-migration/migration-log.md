@@ -1,3 +1,24 @@
+## 2026-04-18 — Lot 1 familles restantes: Invitations (faible risque)
+
+### Objectif de l’itération
+Migrer une première famille d’endpoints encore legacy vers le pattern façade `/api/*.php` → controllers Laravel, sans big bang.
+
+### Actions réalisées
+- Migration de `/api/create_invite.php` vers `InvitationController::create()` via `laravel_proxy.php`.
+- Migration de `/api/accept_invite.php` vers `InvitationController::accept()` via `laravel_proxy.php`.
+- Ajout du triplet Laravel `InvitationController` / `InvitationService` / `InvitationRepository`.
+- Conservation stricte des contrats legacy (routes, payloads, statuts HTTP 200 sur réponses métier, permissions).
+- Ajout d’une documentation de slice (`docs/mvc-migration/slices/invitations.md`) et d’un rapport de compatibilité lot 1.
+
+### Changements code runtime
+- Aucun endpoint supprimé sous `/api/*.php`.
+- Aucun changement de route publique.
+- Endpoints invitations désormais orchestrés par Laravel tout en gardant la façade historique.
+
+### Pourquoi cette famille en premier
+- Faible complexité métier et faible couplage.
+- Risque de régression limité comparé aux familles auth/admin/modération complexe.
+
 # Migration log (MVC) — Biscord
 
 ## 2026-04-17 — Consolidation post-prompt-9 (sans changement de contrat)
