@@ -7,6 +7,7 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\JsonResponse;
 
 abstract class BaseApiFormRequest extends FormRequest
 {
@@ -18,7 +19,7 @@ abstract class BaseApiFormRequest extends FormRequest
     protected function failedValidation(Validator $validator): never
     {
         throw new HttpResponseException(
-            response()->json(['success' => false, 'error' => $validator->errors()->first()], 400)
+            new JsonResponse(['success' => false, 'error' => $validator->errors()->first()], 400)
         );
     }
 }
