@@ -26,7 +26,7 @@ Route::post('/register.php', function (RegisterRequest $request, AuthController 
 Route::middleware(['auth.session'])->group(function (): void {
     Route::get('/get_servers.php', [LegacyBridgeController::class, 'handle'])
         ->defaults('endpoint', 'get_servers');
-    Route::post('/create_server.php', [LegacyBridgeController::class, 'handle'])
+    Route::any('/create_server.php', [LegacyBridgeController::class, 'handle'])
         ->defaults('endpoint', 'create_server');
     Route::get('/get_server_name.php', [LegacyBridgeController::class, 'handle'])
         ->defaults('endpoint', 'get_server_name');

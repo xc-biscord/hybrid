@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -42,9 +43,19 @@ final class LegacyBridgeController extends Controller
 
             case 'create_server':
                 Log::info('legacy bridge dispatch', ['endpoint' => $endpoint, 'target' => 'laravel']);
+                $methodError = $this->validateCreateServerMethod($request);
+                if ($methodError !== null) {
+                    return $methodError;
+                }
+
+                $payload = $this->extractCreateServerJsonInput($request);
+                if ($payload instanceof JsonResponse) {
+                    return $payload;
+                }
+
                 return app(ServerController::class)->create(
                     (int) $request->session()->get('user_id', 0),
-                    $this->extractInput($request),
+                    $payload,
                 );
 
             case 'create_channel':
@@ -92,5 +103,39 @@ final class LegacyBridgeController extends Controller
         }
 
         return $input;
+    }
+
+    private function validateCreateServerMethod(Request $request): ?JsonResponse
+    {
+        if ($request->method() === 'POST') {
+            return null;
+        }
+
+        return new JsonResponse([
+            'success' => false,
+            'error' => 'Méthode non autorisée',
+        ], 405);
+    }
+
+    /**
+     * @return array<string, mixed>|JsonResponse
+     */
+    private function extractCreateServerJsonInput(Request $request): array|JsonResponse
+    {
+        $raw = $request->getContent();
+
+        if ($raw === false || $raw === '') {
+            return [];
+        }
+
+        $decoded = json_decode($raw, true);
+        if (!is_array($decoded)) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'JSON invalide',
+            ], 400);
+        }
+
+        return $decoded;
     }
 }
