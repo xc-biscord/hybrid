@@ -9,6 +9,22 @@ Ce document référence le mapping des endpoints historiques `/api/*.php` vers `
 
 ## Groupes de routes
 
+## Phase 1 — LegacyBridge (`/api/*.php` via front controller Laravel)
+
+Les endpoints ci-dessous sont désormais capturés par `LegacyBridgeController::handle()` dans `routes/api.php` (URLs publiques inchangées).
+
+| Endpoint legacy | Route Laravel | Middleware | Dispatch bridge |
+|---|---|---|---|
+| `/api/get_servers.php` | `GET /api/get_servers.php` | `auth.session` | Laravel (`ServerController::index`) |
+| `/api/get_server_name.php` | `GET /api/get_server_name.php` | `auth.session` | Laravel (`ServerController::showName`) |
+| `/api/get_channels.php` | `GET /api/get_channels.php` | `auth.session` | Laravel (`ChannelController::index`) |
+| `/api/get_messages.php` | `GET /api/get_messages.php` | `auth.session` | Laravel (`MessageController::index`) |
+| `/api/create_server.php` | `POST /api/create_server.php` | `auth.session` | Legacy fallback (`require ../api/create_server.php`) |
+| `/api/create_channel.php` | `POST /api/create_channel.php` | `auth.session` | Legacy fallback (`require ../api/create_channel.php`) |
+| `/api/send_message.php` | `POST /api/send_message.php` | `auth.session` | Legacy fallback (`require ../api/send_message.php`) |
+| `/api/create_invite.php` | `POST /api/create_invite.php` | `auth.session` | Legacy fallback (`require ../api/create_invite.php`) |
+| `/api/accept_invite.php` | `POST /api/accept_invite.php` | `auth.session` | Legacy fallback (`require ../api/accept_invite.php`) |
+
 ### 1) Register
 
 | Endpoint legacy | Méthode | Middleware | Paramètres conservés | Délégation |
