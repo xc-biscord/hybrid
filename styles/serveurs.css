@@ -1,0 +1,100 @@
+html, body {
+    background-color: #0e0e0e;
+    color: #ffffff;
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+  
+  .main-container {
+    max-width: 700px;
+    margin: 60px auto;
+    padding: 30px;
+    background-color: #181818;
+    border-radius: 16px;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+    text-align: center;
+  }
+  
+  h1 {
+    font-size: 2.2em;
+    margin-bottom: 10px;
+  }
+  
+  .highlight {
+    color: #00cfff;
+  }
+  
+  .subtitle {
+    font-size: 1.1em;
+    color: #ccc;
+    margin-bottom: 30px;
+  }
+  
+  .server-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 40px;
+  }
+  
+  .server-entry {
+    padding: 12px 20px;
+    background-color: #222;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+    text-align: left;
+  }
+  
+  .server-entry:hover {
+    background-color: #2a2a2a;
+    transform: scale(1.02);
+    box-shadow: 0 0 10px rgba(0, 191, 255, 0.3);
+  }
+  
+  .create-server-box {
+    border-top: 1px solid #333;
+    padding-top: 30px;
+  }
+  
+  .create-server-box h2 {
+    margin-bottom: 15px;
+  }
+  
+  #create-server-form {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  #create-server-form input {
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    background-color: #1e1e1e;
+    color: white;
+    width: 250px;
+  }
+  
+  #create-server-form button {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(145deg, #00c6ff, #0072ff);
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+  }
+  
+  #create-server-form button:hover {
+    transform: scale(1.05);
+    background: linear-gradient(145deg, #00b3e6, #005ccc);
+  }
+  
+  .no-server {
+    color: #888;
+  }
+  

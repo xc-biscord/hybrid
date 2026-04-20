@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Biscord - Sélection des serveurs</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles/serveurs.css?v=2.3" />
+  <script src="auth_check.js?v=4"></script>
+
+  <link rel="stylesheet" href="styles/test-environment.css?v=2">
+  <script src="test-environment.js?v=2" defer></script>
+</head>
+<body>
+  <div class="main-container">
+    <h1>Bienvenue sur <span class="highlight">Biscord</span> !</h1>
+    <p class="subtitle">Voici quelques serveurs pour commencer :</p>
+
+    <div id="server-list" class="server-list"></div>
+
+    <div class="create-server-box">
+      <h2>Créer un nouveau serveur</h2>
+      <form id="create-server-form">
+        <input type="text" id="server-name" placeholder="Nom du serveur" required />
+        <button type="submit">Créer</button>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="frontend/controllers/ServersPageController.js"></script>
+</body>
+</html>

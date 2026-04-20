@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Invitation Biscord</title>
+  <script src="auth_check.js?v=4"></script>
+
+  <link rel="stylesheet" href="styles/invitation.css?v=2.1">
+  <link rel="stylesheet" href="styles/test-environment.css?v=2">
+  <script src="test-environment.js?v=2" defer></script>
+</head>
+<body>
+  <div id="container">
+    <h1>Invitation à rejoindre un serveur</h1>
+    <p id="server-name">Chargement...</p>
+    <button id="accept-btn" style="display:none;">Accepter l'invitation</button>
+    <p id="error" style="color:red;"></p>
+  </div>
+
+  <script>
+    
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+  
+    const serverNameElem = document.getElementById('server-name');
+    const acceptBtn = document.getElementById('accept-btn');
+    const errorElem = document.getElementById('error');
+    const container = document.getElementById('container');
+  
+    fetch(`/invite.php?code=${code}`)
+      .then(res => res.json())
+      .then(data => {
+        if (!data.success) {
+          errorElem.textContent = data.error;
+          return;
+        }
+  
+        serverNameElem.textContent = `Serveur : ${data.server_name}`;
+        acceptBtn.style.display = 'inline-block';
+  
+        acceptBtn.addEventListener('click', () => {
+          acceptBtn.disabled = true;
+          acceptBtn.textContent = 'Connexion...';
+  
+          fetch('/api/accept_invite.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: `code=${code}`
+          })
+          .then(res => res.json())
+          .then(response => {
+            if (response.success) {
+              // Animation de validation
+              container.innerHTML = `
+                <h1>Invitation acceptée !</h1>
+                <p>Tu vas être redirigé vers le serveur...</p>
+                <div class="loader"></div>
+              `;
+  
+              // Redirection après 2 secondes
+              setTimeout(() => {
+                window.location.href = `serveur.html?id=${response.server_id}`;
+              }, 2000);
+            } else {
+              errorElem.textContent = response.error;
+              acceptBtn.disabled = false;
+              acceptBtn.textContent = 'Accepter l\'invitation';
+            }
+          })
+          .catch(err => {
+            errorElem.textContent = 'Erreur de connexion au serveur.';
+            console.error(err);
+          });
+        });
+      });
+  </script>
+  
+</body>
+</html>

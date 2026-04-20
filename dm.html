@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Biscord - hôte de Message privé</title>
+  <link rel="stylesheet" href="styles/dm.css?v=3.5">
+  <script src="auth_check.js?v=4"></script>
+  <link rel="stylesheet" href="styles/test-environment.css?v=2">
+  <script src="test-environment.js?v=2" defer></script>
+</head>
+<body>
+  <div class="dm-wrapper">
+    <div class="dm-app-window">
+      <div class="dm-header-bar">
+        <div class="dm-title-main">Conversation protégée PHP-BCRYPT</div>
+        <div class="dm-window-controls">
+          <span>–</span><span>◻</span><span class="close">⭘</span>
+        </div>
+      </div>
+
+      <div class="dm-body">
+        <div class="dm-chat-section">
+          <div class="dm-recipient">Converse avec <span id="dm-username">...</span></div>
+          <div id="dm-messages" class="dm-messages"></div>
+          <form id="dm-form" class="dm-form">
+            <input type="text" id="dm-input" placeholder="Écrire un Biscord..." autocomplete="off">
+          </form>
+        </div>
+        <div class="dm-sidebar">
+          <div class="dm-sidebar-title">relations – <span>1 en ligne</span></div>
+          <div class="dm-user">
+            <img src="" id="dm-avatar" class="dm-user-avatar" alt="Avatar">
+            <span id="dm-user-name">Utilisateur</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="dm.js?v=1"></script>
+</body>
+</html>
