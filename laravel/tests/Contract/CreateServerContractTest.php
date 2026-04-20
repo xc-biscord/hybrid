@@ -33,6 +33,30 @@ final class CreateServerContractTest extends ContractTestCase
         $response = $this->client->get('/api/create_server.php');
 
         $this->assertSame(405, $response['status']);
-        $this->assertHasKeys($response['json'], ['success', 'error']);
+        $this->assertSame([
+            'success' => false,
+            'error' => 'Méthode non autorisée',
+        ], $response['json']);
+    }
+
+    public function test_create_server_rejects_invalid_json_with_legacy_contract(): void
+    {
+        $this->actingAsAlice();
+
+        $response = $this->client->request(
+            'POST',
+            '/api/create_server.php',
+            [
+                'Content-Type: application/json',
+                'Accept: application/json',
+            ],
+            '{"nom":',
+        );
+
+        $this->assertSame(400, $response['status']);
+        $this->assertSame([
+            'success' => false,
+            'error' => 'JSON invalide',
+        ], $response['json']);
     }
 }
