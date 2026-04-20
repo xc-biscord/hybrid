@@ -7,16 +7,66 @@ namespace Tests\Contract\Support;
 final class BiscordHttpClient
 {
     private string $baseUrl;
+
+    /**
+     * @var array<string,string>
+     */
     private array $cookies = [];
+
+    private ?int $lastResponseStatus = null;
+    private ?string $lastRequestUrl = null;
 
     public function __construct(?string $baseUrl = null)
     {
-        $this->baseUrl = rtrim($baseUrl ?? (string) getenv('CONTRACT_TEST_BASE_URL') ?: 'http://localhost:8000', '/');
+        $resolvedBaseUrl = $baseUrl ?? (string) getenv('CONTRACT_TEST_BASE_URL');
+        if ($resolvedBaseUrl === '') {
+            $resolvedBaseUrl = 'http://127.0.0.1:8000';
+        }
+
+        $this->baseUrl = $this->normalizeBaseUrl($resolvedBaseUrl);
     }
 
-    public function setPhpSessionId(string $sessionId): void
+    public function getBaseUrl(): string
     {
-        $this->cookies['PHPSESSID'] = $sessionId;
+        return $this->baseUrl;
+    }
+
+    public function getHost(): string
+    {
+        return (string) parse_url($this->baseUrl, PHP_URL_HOST);
+    }
+
+    public function clearCookies(): void
+    {
+        $this->cookies = [];
+    }
+
+    public function getCookie(string $name): ?string
+    {
+        return $this->cookies[$name] ?? null;
+    }
+
+    public function hasCookie(string $name): bool
+    {
+        return isset($this->cookies[$name]);
+    }
+
+    /**
+     * @return array<string,string>
+     */
+    public function getCookies(): array
+    {
+        return $this->cookies;
+    }
+
+    public function getLastResponseStatus(): ?int
+    {
+        return $this->lastResponseStatus;
+    }
+
+    public function getLastRequestUrl(): ?string
+    {
+        return $this->lastRequestUrl;
     }
 
     /**
@@ -58,6 +108,7 @@ final class BiscordHttpClient
     public function request(string $method, string $path, array $headers = [], ?string $body = null): array
     {
         $url = $this->baseUrl . '/' . ltrim($path, '/');
+        $this->lastRequestUrl = $url;
         $responseHeaders = [];
 
         $curl = curl_init($url);
@@ -86,6 +137,8 @@ final class BiscordHttpClient
         }
 
         $status = (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+        $this->lastResponseStatus = $status;
+
         curl_close($curl);
 
         $this->captureSetCookieHeaders($responseHeaders);
@@ -143,5 +196,25 @@ final class BiscordHttpClient
 
             $this->cookies[$name] = $value;
         }
+    }
+
+    private function normalizeBaseUrl(string $baseUrl): string
+    {
+        $normalized = rtrim($baseUrl, '/');
+        $parts = parse_url($normalized);
+
+        if (!is_array($parts)) {
+            throw new \InvalidArgumentException('Invalid CONTRACT_TEST_BASE_URL: ' . $baseUrl);
+        }
+
+        $scheme = $parts['scheme'] ?? 'http';
+        $host = $parts['host'] ?? '127.0.0.1';
+        $port = isset($parts['port']) ? ':' . $parts['port'] : '';
+
+        if ($host === 'localhost') {
+            $host = '127.0.0.1';
+        }
+
+        return sprintf('%s://%s%s', $scheme, $host, $port);
     }
 }

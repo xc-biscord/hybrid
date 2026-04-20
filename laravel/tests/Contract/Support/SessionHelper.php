@@ -7,26 +7,28 @@ namespace Tests\Contract\Support;
 final class SessionHelper
 {
     /**
-     * Crée une session PHP native contenant user_id puis l'attache au client HTTP.
+     * @return array{account:string,login_status:int,has_php_sessid:bool,php_sessid:?string,base_url:string,host:string,login_path:string}
      */
-    public static function actingAs(BiscordHttpClient $client, int $userId): string
+    public static function actingAs(BiscordHttpClient $client, string $accountKey): array
     {
-        $sessionId = 'contract_' . bin2hex(random_bytes(8));
-        $payload = sprintf('user_id|i:%d;', $userId);
+        $account = TestAccounts::get($accountKey);
 
-        $savePath = (string) ini_get('session.save_path');
-        if ($savePath === '') {
-            $savePath = sys_get_temp_dir();
-        }
+        // Ensure each authentication flow starts from a clean, isolated session.
+        $client->clearCookies();
 
-        $sessionFile = rtrim($savePath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'sess_' . $sessionId;
+        $response = $client->postJson('/api/login.php', [
+            'username' => $account['username'],
+            'password' => $account['password'],
+        ]);
 
-        if (file_put_contents($sessionFile, $payload) === false) {
-            throw new \RuntimeException('Unable to write PHP session file: ' . $sessionFile);
-        }
-
-        $client->setPhpSessionId($sessionId);
-
-        return $sessionId;
+        return [
+            'account' => $accountKey,
+            'login_status' => $response['status'],
+            'has_php_sessid' => $client->hasCookie('PHPSESSID'),
+            'php_sessid' => $client->getCookie('PHPSESSID'),
+            'base_url' => $client->getBaseUrl(),
+            'host' => $client->getHost(),
+            'login_path' => '/api/login.php',
+        ];
     }
 }
