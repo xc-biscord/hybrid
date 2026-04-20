@@ -87,11 +87,11 @@ final class TestDatabaseSeeder
 
     private static function connect(): PDO
     {
-        $host = getenv('CONTRACT_TEST_DB_HOST') ?: 'localhost';
-        $port = getenv('CONTRACT_TEST_DB_PORT') ?: '3306';
-        $db = getenv('CONTRACT_TEST_DB_DATABASE') ?: 'biscord_db_tests';
-        $user = getenv('CONTRACT_TEST_DB_USERNAME') ?: 'adminweb';
-        $pass = getenv('CONTRACT_TEST_DB_PASSWORD') ?: 'MazdeoAchaqui';
+        $host = self::resolveConfigValue('CONTRACT_TEST_DB_HOST', 'DB_HOST', '127.0.0.1');
+        $port = self::resolveConfigValue('CONTRACT_TEST_DB_PORT', 'DB_PORT', '3306');
+        $db = self::resolveConfigValue('CONTRACT_TEST_DB_DATABASE', 'DB_DATABASE', 'biscord_db_tests');
+        $user = self::resolveConfigValue('CONTRACT_TEST_DB_USERNAME', 'DB_USERNAME', 'adminweb');
+        $pass = self::resolveConfigValue('CONTRACT_TEST_DB_PASSWORD', 'DB_PASSWORD', 'MazdeoAchaqui');
 
         $pdo = new PDO(
             sprintf('mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4', $host, $port, $db),
@@ -101,5 +101,78 @@ final class TestDatabaseSeeder
         );
 
         return $pdo;
+    }
+
+    private static function resolveConfigValue(string $contractEnvKey, string $laravelEnvKey, string $default): string
+    {
+        $contractValue = getenv($contractEnvKey);
+        if (is_string($contractValue) && $contractValue !== '') {
+            return $contractValue;
+        }
+
+        $laravelValue = getenv($laravelEnvKey);
+        if (is_string($laravelValue) && $laravelValue !== '') {
+            return $laravelValue;
+        }
+
+        $dotenvValues = self::readLaravelDotEnv();
+        $dotenvValue = $dotenvValues[$laravelEnvKey] ?? null;
+        if (is_string($dotenvValue) && $dotenvValue !== '') {
+            return $dotenvValue;
+        }
+
+        return $default;
+    }
+
+    /**
+     * @return array<string,string>
+     */
+    private static function readLaravelDotEnv(): array
+    {
+        static $cachedValues = null;
+        if (is_array($cachedValues)) {
+            return $cachedValues;
+        }
+
+        $dotenvPath = dirname(__DIR__, 3) . '/.env';
+        if (!is_file($dotenvPath)) {
+            $cachedValues = [];
+            return $cachedValues;
+        }
+
+        $values = [];
+        $lines = file($dotenvPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        if (!is_array($lines)) {
+            $cachedValues = [];
+            return $cachedValues;
+        }
+
+        foreach ($lines as $line) {
+            $trimmed = trim($line);
+            if ($trimmed === '' || str_starts_with($trimmed, '#')) {
+                continue;
+            }
+
+            $parts = explode('=', $trimmed, 2);
+            if (count($parts) !== 2) {
+                continue;
+            }
+
+            $key = trim($parts[0]);
+            $value = trim($parts[1]);
+            if ($key === '') {
+                continue;
+            }
+
+            if ((str_starts_with($value, '"') && str_ends_with($value, '"')) || (str_starts_with($value, "'") && str_ends_with($value, "'"))) {
+                $value = substr($value, 1, -1);
+            }
+
+            $values[$key] = $value;
+        }
+
+        $cachedValues = $values;
+
+        return $cachedValues;
     }
 }

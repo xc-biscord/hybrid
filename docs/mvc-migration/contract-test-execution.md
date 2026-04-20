@@ -13,6 +13,17 @@ Ce document décrit l'exécution locale / serveur de test de l'ossature de tests
 php -S localhost:8000 -t .
 ```
 
+## Résolution de la configuration DB de test
+
+L'helper `TestDatabaseSeeder` résout la connexion DB dans cet ordre :
+
+1. Variables `CONTRACT_TEST_DB_*` (override explicite pour les tests Contract).
+2. Variables `DB_*` de l'environnement shell courant.
+3. Valeurs présentes dans `laravel/.env` (fichier existant sur l'environnement d'exécution).
+4. Valeurs par défaut de repli.
+
+Ce comportement permet d'exécuter la suite contre `biscord_db_tests` sans modifier le runtime applicatif.
+
 ## Variables d'environnement optionnelles
 
 Par défaut, la suite utilise :
@@ -39,6 +50,16 @@ Ou en ciblant uniquement les tests contractuels du batch :
 ```bash
 ./vendor/bin/phpunit --testsuite Contract
 ```
+
+### Note sur l'installation des dépendances
+
+Si `vendor/` n'est pas installé, exécuter d'abord :
+
+```bash
+composer install --no-interaction
+```
+
+En environnement CI/reseau restreint, l'installation Composer peut échouer (accès GitHub bloqué). Dans ce cas, documenter explicitement le blocage réseau, car il empêche l'exécution PHPUnit complète.
 
 ## Endpoints couverts dans cette première vague (Laravel-ready)
 
