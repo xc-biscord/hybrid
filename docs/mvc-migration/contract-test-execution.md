@@ -143,3 +143,10 @@ Conformément au plan Phase 0, cette vague **n'inclut pas encore** :
 - Seeder déterministe : `Tests\Contract\Support\TestDatabaseSeeder`.
 - Session de test via cookie `PHPSESSID` généré localement : `Tests\Contract\Support\SessionHelper`.
 - Client HTTP contractuel vers le runtime legacy réel : `Tests\Contract\Support\BiscordHttpClient`.
+
+
+## Audit de sortie Phase 0
+
+- Audit consolidé : `docs/mvc-migration/phase-0-exit-audit.md`.
+- Décision de passage : **GO conditionnel Phase 1** sur le seul périmètre Laravel-ready couvert contractuellement.
+- Hors de ce périmètre, maintenir le gel Phase 0 tant que la couverture contractuelle n'est pas étendue endpoint par endpoint.
