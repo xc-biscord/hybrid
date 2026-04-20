@@ -7,6 +7,7 @@ namespace Tests\Contract;
 use PHPUnit\Framework\TestCase;
 use Tests\Contract\Support\BiscordHttpClient;
 use Tests\Contract\Support\SessionHelper;
+use Tests\Contract\Support\TestAccounts;
 use Tests\Contract\Support\TestDatabaseSeeder;
 
 abstract class ContractTestCase extends TestCase
@@ -23,17 +24,17 @@ abstract class ContractTestCase extends TestCase
 
     protected function actingAsAlice(): void
     {
-        SessionHelper::actingAs($this->client, TestDatabaseSeeder::USER_ALICE_ID);
+        SessionHelper::actingAs($this->client, TestAccounts::id('alice'));
     }
 
     protected function actingAsBob(): void
     {
-        SessionHelper::actingAs($this->client, TestDatabaseSeeder::USER_BOB_ID);
+        SessionHelper::actingAs($this->client, TestAccounts::id('bob'));
     }
 
     protected function actingAsAdmin(): void
     {
-        SessionHelper::actingAs($this->client, TestDatabaseSeeder::USER_ADMIN_ID);
+        SessionHelper::actingAs($this->client, TestAccounts::id('admin'));
     }
 
     /**

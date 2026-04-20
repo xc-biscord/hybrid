@@ -61,6 +61,54 @@ composer install --no-interaction
 
 En environnement CI/reseau restreint, l'installation Composer peut échouer (accès GitHub bloqué). Dans ce cas, documenter explicitement le blocage réseau, car il empêche l'exécution PHPUnit complète.
 
+
+## Source de vérité des comptes de test (auth legacy)
+
+La **seule** source de vérité des comptes contractuels est `laravel/tests/Contract/Support/TestAccounts.php`.
+
+Le seeder `laravel/tests/Contract/Support/TestDatabaseSeeder.php` :
+
+- truncate les tables d'auth/données de test,
+- recrée les comptes depuis `TestAccounts`,
+- génère `users.password_hash` avec `password_hash(..., PASSWORD_DEFAULT)`.
+
+Comptes seedés après chaque `resetAndSeed()` :
+
+- `alice / alice-pass-123`
+- `bob / bob-pass-123`
+- `admin / admin-pass-123`
+- `mod / mod-pass-123`
+
+> Important: tout changement manuel des mots de passe dans `biscord_db_tests.users` est **écrasé** au prochain reset/seed des tests contractuels.
+
+## Vérifications rapides
+
+### 1) Vérifier en SQL/PHP l'utilisateur `alice`
+
+Depuis `laravel/` :
+
+```bash
+php -r '$pdo=new PDO("mysql:host=127.0.0.1;port=3306;dbname=biscord_db_tests;charset=utf8mb4","adminweb","MazdeoAchaqui"); $s=$pdo->query("SELECT id,username,email,password_hash FROM users WHERE username=\'alice\' LIMIT 1"); var_export($s->fetch(PDO::FETCH_ASSOC)); echo PHP_EOL;'
+```
+
+### 2) Vérifier le login legacy (`POST /api/login.php`)
+
+```bash
+curl -i -X POST 'http://localhost:8000/api/login.php' \
+  -H 'Content-Type: application/json' \
+  --data '{"username":"alice","password":"alice-pass-123"}'
+```
+
+Réponse attendue: `HTTP/1.1 200` avec `{"success":true,"user_id":1001}`.
+
+### 3) Relancer les tests contractuels
+
+Depuis `laravel/` :
+
+```bash
+php artisan test --testsuite=Contract
+```
+
 ## Endpoints couverts dans cette première vague (Laravel-ready)
 
 - `api/accept_invite.php`
