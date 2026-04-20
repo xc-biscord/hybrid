@@ -35,6 +35,30 @@ final class CreateChannelContractTest extends ContractTestCase
         $response = $this->client->get('/api/create_channel.php');
 
         $this->assertSame(405, $response['status']);
-        $this->assertHasKeys($response['json'], ['success', 'error']);
+        $this->assertSame([
+            'success' => false,
+            'error' => 'Méthode non autorisée',
+        ], $response['json']);
+    }
+
+    public function test_create_channel_rejects_invalid_json_with_legacy_contract(): void
+    {
+        $this->actingAsAlice();
+
+        $response = $this->client->request(
+            'POST',
+            '/api/create_channel.php',
+            [
+                'Content-Type: application/json',
+                'Accept: application/json',
+            ],
+            '{"server_id":',
+        );
+
+        $this->assertSame(400, $response['status']);
+        $this->assertSame([
+            'success' => false,
+            'error' => 'JSON invalide',
+        ], $response['json']);
     }
 }
