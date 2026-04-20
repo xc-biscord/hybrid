@@ -11,8 +11,6 @@ use Tests\Contract\Support\TestDatabaseSeeder;
 
 abstract class ContractTestCase extends TestCase
 {
-    protected const CONTRACT_BASE_URL = 'http://127.0.0.1:8000';
-
     protected BiscordHttpClient $client;
 
     /**
@@ -25,7 +23,7 @@ abstract class ContractTestCase extends TestCase
         parent::setUp();
 
         TestDatabaseSeeder::resetAndSeed();
-        $this->client = new BiscordHttpClient(self::CONTRACT_BASE_URL);
+        $this->client = new BiscordHttpClient();
         $this->lastAuthAttempt = null;
     }
 
@@ -79,7 +77,7 @@ abstract class ContractTestCase extends TestCase
             ),
         );
 
-        $this->assertSame('127.0.0.1', $this->lastAuthAttempt['host']);
+        $this->assertNotSame('', trim($this->lastAuthAttempt['host']));
     }
 
     /**

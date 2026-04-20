@@ -148,3 +148,11 @@ Sur ce périmètre, la Phase 1 (unification du point d'entrée via routing Larav
 - Aucune rewrite serveur.
 - Aucune modification de la DB réelle (`biscord_db_tests` isolée).
 - Les seuls fichiers touchés pour Phase 0 sont les documents sous `docs/mvc-migration/` (dont ce fichier).
+
+
+## 9. Statut de couverture contractuelle (sortie Phase 0)
+
+Au 2026-04-20, la couverture contractuelle automatisée active porte sur les 9 endpoints **Laravel-ready** :
+`accept_invite`, `create_channel`, `create_invite`, `create_server`, `get_channels`, `get_messages`, `get_server_name`, `get_servers`, `send_message`.
+
+Le détail GO/NO-GO et les recommandations opérationnelles sont consolidés dans `docs/mvc-migration/phase-0-exit-audit.md`.
