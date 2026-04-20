@@ -41,6 +41,12 @@ final class LegacyBridgeController extends Controller
                 );
 
             case 'create_server':
+                Log::info('legacy bridge dispatch', ['endpoint' => $endpoint, 'target' => 'laravel']);
+                return app(ServerController::class)->create(
+                    (int) $request->session()->get('user_id', 0),
+                    $this->extractInput($request),
+                );
+
             case 'create_channel':
             case 'send_message':
             case 'create_invite':
@@ -61,6 +67,18 @@ final class LegacyBridgeController extends Controller
             $_GET = $query;
         }
 
+        $_POST = $this->extractInput($request);
+
+        require base_path(sprintf('../api/%s.php', $endpoint));
+
+        exit;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function extractInput(Request $request): array
+    {
         $input = $request->request->all();
         if (!is_array($input)) {
             $input = [];
@@ -73,10 +91,6 @@ final class LegacyBridgeController extends Controller
             }
         }
 
-        $_POST = $input;
-
-        require base_path(sprintf('../api/%s.php', $endpoint));
-
-        exit;
+        return $input;
     }
 }
