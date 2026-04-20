@@ -4,16 +4,12 @@ declare(strict_types=1);
 
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ChannelController;
 use App\Http\Controllers\DmController;
+use App\Http\Controllers\LegacyBridgeController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\RoleModerationController;
-use App\Http\Controllers\ServerController;
-use App\Http\Requests\CreateChannelRequest;
-use App\Http\Requests\CreateServerRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\SendDmRequest;
-use App\Http\Requests\SendMessageRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
@@ -28,59 +24,32 @@ Route::post('/register.php', function (RegisterRequest $request, AuthController 
 });
 
 Route::middleware(['auth.session'])->group(function (): void {
+    Route::get('/get_servers.php', [LegacyBridgeController::class, 'handle'])
+        ->defaults('endpoint', 'get_servers');
+    Route::post('/create_server.php', [LegacyBridgeController::class, 'handle'])
+        ->defaults('endpoint', 'create_server');
+    Route::get('/get_server_name.php', [LegacyBridgeController::class, 'handle'])
+        ->defaults('endpoint', 'get_server_name');
+    Route::get('/get_channels.php', [LegacyBridgeController::class, 'handle'])
+        ->defaults('endpoint', 'get_channels');
+    Route::post('/create_channel.php', [LegacyBridgeController::class, 'handle'])
+        ->defaults('endpoint', 'create_channel');
+    Route::get('/get_messages.php', [LegacyBridgeController::class, 'handle'])
+        ->defaults('endpoint', 'get_messages');
+    Route::post('/send_message.php', [LegacyBridgeController::class, 'handle'])
+        ->defaults('endpoint', 'send_message');
+    Route::post('/create_invite.php', [LegacyBridgeController::class, 'handle'])
+        ->defaults('endpoint', 'create_invite');
+    Route::post('/accept_invite.php', [LegacyBridgeController::class, 'handle'])
+        ->defaults('endpoint', 'accept_invite');
+});
+
+Route::middleware(['auth.session'])->group(function (): void {
     /*
     |--------------------------------------------------------------------------
-    | Servers
+    | Servers / Channels / Messages migrated via LegacyBridgeController
     |--------------------------------------------------------------------------
     */
-    Route::get('/get_servers.php', function (Request $request, ServerController $controller) {
-        $userId = (int) $request->session()->get('user_id', 0);
-        return $controller->index($userId);
-    });
-
-    Route::post('/create_server.php', function (CreateServerRequest $request, ServerController $controller) {
-        $userId = (int) $request->session()->get('user_id', 0);
-        return $controller->create($userId, $request->validated());
-    });
-
-    Route::get('/get_server_name.php', function (Request $request, ServerController $controller) {
-        $serverId = (int) $request->query('id', 0);
-        return $controller->showName($serverId);
-    });
-
-    /*
-    |--------------------------------------------------------------------------
-    | Channels
-    |--------------------------------------------------------------------------
-    */
-    Route::get('/get_channels.php', function (Request $request, ChannelController $controller) {
-        $userId = (int) $request->session()->get('user_id', 0);
-        $serverId = (int) $request->query('server_id', 0);
-
-        return $controller->index($userId, $serverId);
-    });
-
-    Route::post('/create_channel.php', function (CreateChannelRequest $request, ChannelController $controller) {
-        $userId = (int) $request->session()->get('user_id', 0);
-        return $controller->create($userId, $request->validated());
-    });
-
-    /*
-    |--------------------------------------------------------------------------
-    | Messages
-    |--------------------------------------------------------------------------
-    */
-    Route::get('/get_messages.php', function (Request $request, MessageController $controller) {
-        $userId = (int) $request->session()->get('user_id', 0);
-        $channelId = (int) $request->query('channel_id', 0);
-
-        return $controller->index($userId, $channelId);
-    });
-
-    Route::post('/send_message.php', function (SendMessageRequest $request, MessageController $controller) {
-        $userId = (int) $request->session()->get('user_id', 0);
-        return $controller->create($userId, $request->validated());
-    });
 
     Route::any('/delete_message.php', function (Request $request, MessageController $controller) {
         $userId = (int) $request->session()->get('user_id', 0);
