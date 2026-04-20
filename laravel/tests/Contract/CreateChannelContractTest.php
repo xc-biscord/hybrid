@@ -22,15 +22,18 @@ final class CreateChannelContractTest extends ContractTestCase
         $this->assertTrue($response['json']['success']);
     }
 
-    public function test_create_channel_requires_authentication(): void
+    public function test_create_channel_post_non_auth_returns_legacy_401_contract(): void
     {
         $response = $this->client->postJson('/api/create_channel.php', ['server_id' => TestDatabaseSeeder::SERVER_1_ID, 'name' => 'x']);
 
         $this->assertSame(401, $response['status']);
-        $this->assertHasKeys($response['json'], ['success', 'error']);
+        $this->assertSame([
+            'success' => false,
+            'error' => 'Non authentifié',
+        ], $response['json']);
     }
 
-    public function test_create_channel_rejects_get_method(): void
+    public function test_create_channel_get_non_auth_returns_legacy_405_contract(): void
     {
         $response = $this->client->get('/api/create_channel.php');
 
