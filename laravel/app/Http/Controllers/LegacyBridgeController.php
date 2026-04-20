@@ -65,6 +65,11 @@ final class LegacyBridgeController extends Controller
                     return $methodError;
                 }
 
+                $authError = $this->validateSessionAuthentication($request);
+                if ($authError !== null) {
+                    return $authError;
+                }
+
                 $payload = $this->extractCreateChannelJsonInput($request);
                 if ($payload instanceof JsonResponse) {
                     return $payload;
@@ -143,6 +148,18 @@ final class LegacyBridgeController extends Controller
             'success' => false,
             'error' => 'Méthode non autorisée',
         ], 405);
+    }
+
+    private function validateSessionAuthentication(Request $request): ?JsonResponse
+    {
+        if ($request->session()->has('user_id')) {
+            return null;
+        }
+
+        return new JsonResponse([
+            'success' => false,
+            'error' => 'Non authentifié',
+        ], 401);
     }
 
     /**
