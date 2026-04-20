@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Biscord API – Documentation</title>
+  <link rel="stylesheet" href="styles.css?v=3">
+  <link rel="stylesheet" href="prism/prism-tomorrow.css">
+  <script src="prism/prism.js?v=6.0" defer></script>
+  <script src="prism/components/prism-json.min.js?v=6.0" defer></script>
+  <script src="layout.js?v=2.3" defer></script>
+  <script src="search.js?v=2.1" defer></script>
+</head>
+<body>
+
+<h2>📘 Bienvenue sur la documentation de l’API Biscord</h2>
+<p>Cette documentation couvre tous les endpoints REST disponibles sur <code>https://biscord-api-stg.xcsoftworks.com/api/</code></p>
+
+<h3>🔐 Authentification</h3>
+<p>Toutes les routes nécessitent une session PHP active côté serveur. Il n’y a pas encore de token d’API ou d’OAuth public.</p>
+
+<h3>📦 Format des données</h3>
+<p>Les requêtes et réponses sont au format <strong>JSON</strong>. Exemple :</p>
+
+<pre><code class="language-json">{
+  "success": true,
+  "data": {...}
+}</code></pre>
+
+<h3>📚 Sections disponibles</h3>
+<ul>
+  <li><a href="endpoints/login.html">🔐 Authentification</a></li>
+  <li><a href="endpoints/get_profile.html">👥 Utilisateurs</a></li>
+  <li><a href="endpoints/create_server.html">🧩 Serveurs</a></li>
+  <li><a href="endpoints/create_invite.html">🔗 Invitations</a></li>
+  <li><a href="endpoints/create_channel.html">#️⃣ Channels</a></li>
+  <li><a href="endpoints/send_message.html">💬 Messages publics</a></li>
+  <li><a href="endpoints/start_dm.html">📨 Messages privés (DM)</a></li>
+  <li><a href="endpoints/get_server_name.html">🧰 Infos serveur</a></li>
+</ul>
+
+</body>
+</html>

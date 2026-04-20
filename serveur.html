@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Biscord - Serveur</title>
+  <link rel="stylesheet" href="styles/serveur.css?v=11.7">
+  <script src="auth_check.js?v=4"></script>
+  <link rel="stylesheet" href="styles/test-environment.css?v=2">
+  <script src="test-environment.js?v=2" defer></script>
+</head>
+<body>
+  <div class="server-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <div class="server-header">
+          <div class="server-name-sidebar" id="sidebar-server-name">Nom du serveur</div>
+          <button class="invite-btn" onclick="genererLienInvitation()">+ Inviter</button>
+        </div>
+
+        <h3>Channels</h3>
+        <ul id="channel-list"></ul>
+
+        <form id="create-channel-form" class="channel-form">
+          <input type="text" id="new-channel-name" placeholder="Nouveau channel...">
+          <button type="submit">+</button>
+        </form>
+      </div>
+
+      <!-- DM Notifs -->
+      <div class="sidebar-section">
+        <div id="dm-notif-wrapper" onclick="window.location.href='dm.html'">
+          <span>✉️ Messages</span>
+          <span id="dm-badge" class="notif-bubble hidden">!</span>
+        </div>
+        <div class="dm-avatar-scroll" id="dm-avatar-scroll"></div>
+      </div>
+
+      <h3 class="sidebar-section-title"><a href="..\serveurs">Serveurs</a></h3>
+      <div class="server-list-scroll">
+        <ul id="server-list"></ul>
+      </div>
+
+      <!-- Profil utilisateur -->
+      <div class="user-profile-bar">
+        <img src="" alt="Avatar" class="profile-avatar-small" id="user-avatar">
+        <div class="profile-info">
+          <div id="user-username">Nom</div>
+          <div id="user-status">...</div>
+        </div>
+        <div class="gear-wrapper">
+          <span class="gear-icon" onclick="toggleMenu()">⚙️</span>
+          <div id="profile-menu" class="hidden">
+            <div onclick="window.location.href='../accueil.html'">Modifier mon profil</div>
+            <div onclick="logout()">Se déconnecter</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Chat -->
+    <main class="chat">
+      <div class="chat-content">
+        <h2 id="current-channel-name">#...</h2>
+        <div id="message-container"></div>
+      </div>
+      <form id="send-message-form">
+        <input type="text" id="message-input" placeholder="Envoyer un Biscord...">
+        <button type="submit">Envoyer</button>
+      </form>
+    </main>
+
+    <!-- Membres -->
+    <aside class="members">
+      <h3>Membres</h3>
+      <ul id="member-list"></ul>
+    </aside>
+  </div>
+
+  <!-- Modale profil -->
+  <div id="profile-modal" class="profile-modal hidden">
+    <div class="profile-content">
+      <span class="close" onclick="fermerProfil()">×</span>
+      <img id="profile-avatar" src="" alt="Avatar" class="profile-avatar">
+      <h2 id="profile-name"></h2>
+      <div class="profile-section">
+        <h4>Status :</h4>
+        <p id="profile-status" class="profile-text"></p>
+      </div>
+      <div class="profile-section">
+        <h4>Biographie :</h4>
+        <p id="profile-bio" class="profile-text"></p>
+        <div class="profile-section">
+          <button id="dm-button" class="dm-btn">Envoyer un message</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="serveur.js?v=5.0"></script>
+</body>
+</html>

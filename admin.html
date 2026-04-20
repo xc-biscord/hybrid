@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard – Biscord</title>
+  <link rel="stylesheet" href="styles/admin.css?v=2.1">
+  <link rel="stylesheet" href="styles/test-environment.css?v=2">
+  <script src="test-environment.js?v=2" defer></script>
+</head>
+<body>
+
+  <h1>Admin Dashboard</h1>
+
+  <input type="text" id="search" placeholder="Rechercher un utilisateur..." />
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Pseudo</th>
+        <th>Email</th>
+        <th>P1</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="user-table-body">
+      <!-- Dynamique -->
+    </tbody>
+  </table>
+
+  <div style="text-align:center; margin-top: 2rem;">
+    <button class="btn-save" onclick="saveAllChanges()">💾 Save changes</button>
+  </div>
+
+  <!-- Menu contextuel pour les serveurs -->
+  <div id="popup-serveurs">
+    <div class="popup-inner">
+      <span class="close-popup" onclick="fermerPopup()">✖</span>
+      <h2>Serveurs de l'utilisateur</h2>
+      <ul id="serveur-list"></ul>
+    </div>
+  </div>
+
+  <script>
+    let modifs = {};
+
+    async function chargerUtilisateurs() {
+      const res = await fetch('/api/get_all_users.php');
+      const data = await res.json();
+      const tbody = document.getElementById('user-table-body');
+      tbody.innerHTML = '';
+
+      if (data.success) {
+        data.users.forEach(user => {
+          const tr = document.createElement('tr');
+          tr.dataset.username = user.username.toLowerCase();
+          tr.dataset.email = user.email.toLowerCase();
+
+          const isP1 = user.permission_level === 'P1';
+
+          tr.innerHTML = `
+            <td>${user.id}</td>
+            <td>${user.username}</td>
+            <td>${user.email}</td>
+            <td>
+              <input type="checkbox" ${isP1 ? 'checked' : ''} onchange="modifP1(${user.id}, this.checked)">
+            </td>
+            <td>
+              <button class="btn" onclick="afficherServeurs(${user.id})">Voir serveurs</button>
+              <button class="btn btn-danger" onclick="bannirUtilisateur(${user.id})">Bannir</button>
+            </td>
+          `;
+
+          tbody.appendChild(tr);
+        });
+      }
+    }
+
+    function modifP1(userId, isChecked) {
+      modifs[userId] = isChecked;
+    }
+
+    async function saveAllChanges() {
+      for (const [id, val] of Object.entries(modifs)) {
+        await fetch('/api/set_member_role.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            target_user_id: parseInt(id),
+            server_id: 0,
+            new_role: val ? 'P1' : null
+          })
+        });
+      }
+      alert('Modifications enregistrées');
+      modifs = {};
+      chargerUtilisateurs();
+    }
+
+    async function afficherServeurs(userId) {
+      const res = await fetch(`/api/get_user_servers.php?user_id=${userId}`);
+      const data = await res.json();
+      const ul = document.getElementById('serveur-list');
+      ul.innerHTML = '';
+
+      if (data.success) {
+        data.servers.forEach(s => {
+          const li = document.createElement('li');
+          li.textContent = s.name;
+          ul.appendChild(li);
+        });
+        document.getElementById('popup-serveurs').classList.add('visible');
+    } else {
+        alert('Erreur : ' + data.error);
+      }
+    }
+
+    function fermerPopup() {
+        document.getElementById('popup-serveurs').classList.remove('visible');
+    }
+
+    async function bannirUtilisateur(userId) {
+      if (!confirm("Confirmer le bannissement ?")) return;
+      const res = await fetch('/api/ban_user.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Utilisateur banni");
+        chargerUtilisateurs();
+      } else {
+        alert("Erreur : " + data.error);
+      }
+    }
+
+    // Recherche live
+    document.getElementById('search').addEventListener('input', function() {
+      const val = this.value.toLowerCase();
+      document.querySelectorAll('#user-table-body tr').forEach(tr => {
+        const match = tr.dataset.username.includes(val) || tr.dataset.email.includes(val);
+        tr.style.display = match ? '' : 'none';
+      });
+    });
+
+    chargerUtilisateurs();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Accueil - Biscord</title>
+  <link rel="stylesheet" href="styles/accueil.css?v=3">
+  <script src="auth_check.js?v=4"></script>
+  <link rel="stylesheet" href="styles/test-environment.css?v=2">
+  <script src="test-environment.js?v=2" defer></script>
+</head>
+
+<body>
+  <div class="accueil-container">
+    <a href="serveurs.html" class="btn-acceder-biscord">🔗 Accéder à Biscord</a>
+
+    <h1>Hey, re sur <span class="biscord">Biscord, <span id="username"></span> !</span></h1>
+
+    <section class="profil-card">
+      <h2>👤 Profil utilisateur</h2>
+      <img id="avatar" src="assets/default-user.png" alt="Avatar" class="avatar" onerror="this.onerror=null;this.src='assets/default-user.png';">
+    </section>
+
+    <section class="modifier-profil">
+      <h3>✏️ Modifier mon profil</h3>
+      <form id="form-profile">
+        <label for="new-bio">Bio :</label>
+        <textarea id="new-bio" rows="3" placeholder="Décris-toi ici..."></textarea>
+
+        <label for="new-avatar">Avatar (URL) :</label>
+        <input type="text" id="new-avatar" placeholder="https://...">
+
+        <label for="new-status">Status :</label>
+        <input type="text" id="new-status" placeholder="En ligne / Absent...">
+
+        <button type="submit">💾 Enregistrer les changements</button>
+      </form>
+
+      <h3>🔧 Modifier mon compte</h3>
+      <form id="form-account">
+        <label for="new-username">Nom d'utilisateur :</label>
+        <input type="text" id="new-username" placeholder="Nouveau pseudo..." required>
+
+        <label for="new-email">Adresse email :</label>
+        <input type="email" id="new-email" placeholder="nouveau@email.com" required>
+
+        <button type="submit">💾 Enregistrer le compte</button>
+      </form>
+
+      <h3>🔒 Réglages du mot de passe</h3>
+      <form id="form-password">
+        <label for="new-password">Nouveau mot de passe :</label>
+        <input type="password" id="new-password" placeholder="(laisse vide pour ne pas changer)">
+
+        <label for="confirm-password">Confirmer le nouveau mot de passe :</label>
+        <input type="password" id="confirm-password" placeholder="Retape le mot de passe">
+
+        <label for="current-password">Mot de passe actuel :</label>
+        <input type="password" id="current-password" placeholder="Obligatoire si changement de mot de passe">
+
+        <button type="submit">💾 Enregistrer les réglages du mot de passe</button>
+      </form>
+    </section>
+  </div>
+
+  <div id="biscord-toast" class="hidden toast-wrapper">
+    <div class="toast-message">
+      <strong id="toast-title"></strong>
+      <p id="toast-text"></p>
+    </div>
+  </div>
+
+  <script type="module" src="frontend/controllers/ProfilePageController.js"></script>
+</body>
+</html>
