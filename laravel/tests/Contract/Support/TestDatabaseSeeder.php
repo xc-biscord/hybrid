@@ -8,10 +8,10 @@ use PDO;
 
 final class TestDatabaseSeeder
 {
-    public const USER_ALICE_ID = 1001;
-    public const USER_BOB_ID = 1002;
-    public const USER_ADMIN_ID = 1003;
-    public const USER_MOD_ID = 1004;
+    public const USER_ALICE_ID = TestAccounts::ALICE_ID;
+    public const USER_BOB_ID = TestAccounts::BOB_ID;
+    public const USER_ADMIN_ID = TestAccounts::ADMIN_ID;
+    public const USER_MOD_ID = TestAccounts::MOD_ID;
 
     public const SERVER_1_ID = 1101;
     public const CHANNEL_1_ID = 1201;
@@ -46,13 +46,16 @@ final class TestDatabaseSeeder
 
         $pdo->exec('SET FOREIGN_KEY_CHECKS=1');
 
-        $passwordHash = password_hash('contract-password', PASSWORD_BCRYPT);
-
         $usersStmt = $pdo->prepare('INSERT INTO users (id, username, email, password_hash, created_at) VALUES (?, ?, ?, ?, NOW())');
-        $usersStmt->execute([self::USER_ALICE_ID, 'alice', 'alice@example.test', $passwordHash]);
-        $usersStmt->execute([self::USER_BOB_ID, 'bob', 'bob@example.test', $passwordHash]);
-        $usersStmt->execute([self::USER_ADMIN_ID, 'admin', 'admin@example.test', $passwordHash]);
-        $usersStmt->execute([self::USER_MOD_ID, 'mod', 'mod@example.test', $passwordHash]);
+
+        foreach (TestAccounts::all() as $account) {
+            $usersStmt->execute([
+                $account['id'],
+                $account['username'],
+                $account['email'],
+                password_hash($account['password'], PASSWORD_DEFAULT),
+            ]);
+        }
 
         $profileStmt = $pdo->prepare('INSERT INTO profiles (user_id, bio, avatar_url, status) VALUES (?, ?, ?, ?)');
         $profileStmt->execute([self::USER_ALICE_ID, 'Alice profile', 'https://cdn.example.test/alice.png', 'online']);
