@@ -32,8 +32,6 @@ Route::middleware(['auth.session'])->group(function (): void {
         ->defaults('endpoint', 'get_server_name');
     Route::get('/get_channels.php', [LegacyBridgeController::class, 'handle'])
         ->defaults('endpoint', 'get_channels');
-    Route::any('/create_channel.php', [LegacyBridgeController::class, 'handle'])
-        ->defaults('endpoint', 'create_channel');
     Route::get('/get_messages.php', [LegacyBridgeController::class, 'handle'])
         ->defaults('endpoint', 'get_messages');
     Route::post('/send_message.php', [LegacyBridgeController::class, 'handle'])
@@ -43,6 +41,9 @@ Route::middleware(['auth.session'])->group(function (): void {
     Route::post('/accept_invite.php', [LegacyBridgeController::class, 'handle'])
         ->defaults('endpoint', 'accept_invite');
 });
+
+Route::any('/create_channel.php', [LegacyBridgeController::class, 'handle'])
+    ->defaults('endpoint', 'create_channel');
 
 Route::middleware(['auth.session'])->group(function (): void {
     /*
