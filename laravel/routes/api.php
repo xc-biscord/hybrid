@@ -32,7 +32,7 @@ Route::middleware(['auth.session'])->group(function (): void {
         ->defaults('endpoint', 'get_server_name');
     Route::get('/get_channels.php', [LegacyBridgeController::class, 'handle'])
         ->defaults('endpoint', 'get_channels');
-    Route::post('/create_channel.php', [LegacyBridgeController::class, 'handle'])
+    Route::any('/create_channel.php', [LegacyBridgeController::class, 'handle'])
         ->defaults('endpoint', 'create_channel');
     Route::get('/get_messages.php', [LegacyBridgeController::class, 'handle'])
         ->defaults('endpoint', 'get_messages');
