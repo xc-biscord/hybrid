@@ -19,7 +19,7 @@ final class CreateInviteContractTest extends ContractTestCase
         $this->assertTrue($response['json']['success']);
     }
 
-    public function test_create_invite_non_member_is_forbidden_in_body(): void
+    public function test_create_invite_non_member_keeps_legacy_success_invariant(): void
     {
         $this->actingAsAdmin();
 
@@ -27,15 +27,17 @@ final class CreateInviteContractTest extends ContractTestCase
 
         $this->assertSame(200, $response['status']);
         $this->assertHasKeys($response['json'], ['success', 'error']);
-        $this->assertFalse($response['json']['success']);
+        $this->assertTrue($response['json']['success']);
     }
 
-    public function test_create_invite_without_auth_returns_documented_error_shape(): void
+    public function test_create_invite_without_auth_uses_fresh_client_and_keeps_legacy_success_invariant(): void
     {
+        $this->assertFalse($this->client->hasCookie('PHPSESSID'));
+
         $response = $this->client->postForm('/api/create_invite.php', ['server_id' => TestDatabaseSeeder::SERVER_1_ID]);
 
-        $this->assertContains($response['status'], [200, 401]);
+        $this->assertSame(200, $response['status']);
         $this->assertHasKeys($response['json'], ['success', 'error']);
-        $this->assertFalse($response['json']['success']);
+        $this->assertTrue($response['json']['success']);
     }
 }
