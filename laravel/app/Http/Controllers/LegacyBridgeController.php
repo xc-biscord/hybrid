@@ -59,6 +59,22 @@ final class LegacyBridgeController extends Controller
                 );
 
             case 'create_channel':
+                Log::info('legacy bridge dispatch', ['endpoint' => $endpoint, 'target' => 'laravel']);
+                $methodError = $this->validateCreateChannelMethod($request);
+                if ($methodError !== null) {
+                    return $methodError;
+                }
+
+                $payload = $this->extractCreateChannelJsonInput($request);
+                if ($payload instanceof JsonResponse) {
+                    return $payload;
+                }
+
+                return app(ChannelController::class)->create(
+                    (int) $request->session()->get('user_id', 0),
+                    $payload,
+                );
+
             case 'send_message':
             case 'create_invite':
             case 'accept_invite':
@@ -117,10 +133,44 @@ final class LegacyBridgeController extends Controller
         ], 405);
     }
 
+    private function validateCreateChannelMethod(Request $request): ?JsonResponse
+    {
+        if ($request->method() === 'POST') {
+            return null;
+        }
+
+        return new JsonResponse([
+            'success' => false,
+            'error' => 'Méthode non autorisée',
+        ], 405);
+    }
+
     /**
      * @return array<string, mixed>|JsonResponse
      */
     private function extractCreateServerJsonInput(Request $request): array|JsonResponse
+    {
+        $raw = $request->getContent();
+
+        if ($raw === false || $raw === '') {
+            return [];
+        }
+
+        $decoded = json_decode($raw, true);
+        if (!is_array($decoded)) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'JSON invalide',
+            ], 400);
+        }
+
+        return $decoded;
+    }
+
+    /**
+     * @return array<string, mixed>|JsonResponse
+     */
+    private function extractCreateChannelJsonInput(Request $request): array|JsonResponse
     {
         $raw = $request->getContent();
 
