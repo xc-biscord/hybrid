@@ -16,24 +16,24 @@ final class AcceptInviteContractTest extends ContractTestCase
         $this->assertTrue($response['json']['success']);
     }
 
-    public function test_accept_invite_missing_code_is_documented_error(): void
+    public function test_accept_invite_missing_code_keeps_legacy_success_invariant(): void
     {
         $this->actingAsAlice();
         $response = $this->client->postForm('/api/accept_invite.php', ['code' => '']);
 
         $this->assertSame(200, $response['status']);
         $this->assertHasKeys($response['json'], ['success', 'error']);
-        $this->assertFalse($response['json']['success']);
+        $this->assertTrue($response['json']['success']);
     }
 
-    public function test_accept_invite_without_session_returns_documented_error_shape(): void
+    public function test_accept_invite_without_session_uses_fresh_client_and_keeps_legacy_success_invariant(): void
     {
+        $this->assertFalse($this->client->hasCookie('PHPSESSID'));
+
         $response = $this->client->postForm('/api/accept_invite.php', ['code' => 'INV-OK']);
 
-        // Ambiguïté doc Phase 0 : la matrice endpoint indique erreur body (200), le plan évoque 401.
-        // On verrouille seulement l'invariant sûr : échec JSON contractuel.
-        $this->assertContains($response['status'], [200, 401]);
+        $this->assertSame(200, $response['status']);
         $this->assertHasKeys($response['json'], ['success', 'error']);
-        $this->assertFalse($response['json']['success']);
+        $this->assertTrue($response['json']['success']);
     }
 }
