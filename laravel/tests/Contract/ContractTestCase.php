@@ -42,6 +42,11 @@ abstract class ContractTestCase extends TestCase
         $this->authenticateAs('admin');
     }
 
+    protected function actingAsMod(): void
+    {
+        $this->authenticateAs('mod');
+    }
+
     /**
      * @return array{account:string,login_status:int,has_php_sessid:bool,php_sessid:?string,base_url:string,host:string,login_path:string}|null
      */
