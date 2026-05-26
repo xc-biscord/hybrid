@@ -17,7 +17,9 @@ final class UpdateProfileController extends Controller
 
     public function handle(Request $request): JsonResponse
     {
-        $userId = (int) $request->session()->get('user_id');
+        $userId = isset($_SESSION['user_id']) && is_numeric($_SESSION['user_id'])
+            ? (int) $_SESSION['user_id']
+            : 0;
         $bio = (string) $request->input('bio', '');
         $avatarUrl = (string) $request->input('avatar_url', '');
         // @legacy-invariant: status par défaut à 'disponible'.

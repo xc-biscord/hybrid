@@ -45,6 +45,18 @@ final class AccountController
                 'payload' => ['success' => false, 'error' => $e->getMessage()],
             ];
         } catch (PDOException $e) {
+            $isDuplicate = ($e->errorInfo[1] ?? null) === 1062;
+
+            if ($isDuplicate) {
+                return [
+                    'statusCode' => 200,
+                    'payload' => [
+                        'success' => false,
+                        'error' => 'Nom d'utilisateur ou email déjà utilisé',
+                    ],
+                ];
+            }
+
             return [
                 'statusCode' => 500,
                 'payload' => [
