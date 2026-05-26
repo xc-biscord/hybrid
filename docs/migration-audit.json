@@ -1,0 +1,1048 @@
+{
+  "endpoints": [
+    {
+      "file": "api/accept_invite.php",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "inputs": {
+        "body": [
+          "see source"
+        ],
+        "session": [
+          "user_id"
+        ],
+        "query": []
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": "App\\Http\\Controllers\\InvitationController::class",
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "MIGRATED",
+      "contract_test": true,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/auth.php",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "inputs": {
+        "body": [],
+        "session": [
+          "user_id"
+        ],
+        "query": []
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": null,
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "PARTIAL",
+      "contract_test": false,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/ban_user.php",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "inputs": {
+        "body": [
+          "see source"
+        ],
+        "session": [
+          "user_id"
+        ],
+        "query": []
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": null,
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "LEGACY_ONLY",
+      "contract_test": true,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/bootstrap.php",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "inputs": {
+        "body": [
+          "see source"
+        ],
+        "session": [
+          "user_id"
+        ],
+        "query": []
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": null,
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "PARTIAL",
+      "contract_test": false,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/check_auth.php",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "inputs": {
+        "body": [],
+        "session": [
+          "user_id"
+        ],
+        "query": []
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": null,
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "PARTIAL",
+      "contract_test": true,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/create_channel.php",
+      "methods": [
+        "POST"
+      ],
+      "inputs": {
+        "body": [
+          "see source"
+        ],
+        "session": [
+          "user_id"
+        ],
+        "query": []
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": "App\\Http\\Controllers\\ChannelController::class",
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "MIGRATED",
+      "contract_test": true,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/create_invite.php",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "inputs": {
+        "body": [
+          "see source"
+        ],
+        "session": [
+          "user_id"
+        ],
+        "query": []
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": "App\\Http\\Controllers\\InvitationController::class",
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "MIGRATED",
+      "contract_test": true,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/create_server.php",
+      "methods": [
+        "POST"
+      ],
+      "inputs": {
+        "body": [
+          "see source"
+        ],
+        "session": [
+          "user_id"
+        ],
+        "query": []
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": "App\\Http\\Controllers\\ServerController::class",
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "MIGRATED",
+      "contract_test": true,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/delete_message.php",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "inputs": {
+        "body": [
+          "see source"
+        ],
+        "session": [
+          "user_id"
+        ],
+        "query": []
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": null,
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "PARTIAL",
+      "contract_test": true,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/get_all_users.php",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "inputs": {
+        "body": [],
+        "session": [
+          "user_id"
+        ],
+        "query": []
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": null,
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "PARTIAL",
+      "contract_test": true,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/get_channels.php",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "inputs": {
+        "body": [],
+        "session": [
+          "user_id"
+        ],
+        "query": [
+          "see source"
+        ]
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": "App\\Http\\Controllers\\ChannelController::class",
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "MIGRATED",
+      "contract_test": true,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/get_dm_messages.php",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "inputs": {
+        "body": [],
+        "session": [
+          "user_id"
+        ],
+        "query": [
+          "see source"
+        ]
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": null,
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "PARTIAL",
+      "contract_test": true,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/get_dm_notifications.php",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "inputs": {
+        "body": [],
+        "session": [
+          "user_id"
+        ],
+        "query": []
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": null,
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "PARTIAL",
+      "contract_test": true,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/get_messages.php",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "inputs": {
+        "body": [],
+        "session": [
+          "user_id"
+        ],
+        "query": [
+          "see source"
+        ]
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": "App\\Http\\Controllers\\MessageController::class",
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "MIGRATED",
+      "contract_test": true,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/get_my_server_role.php",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "inputs": {
+        "body": [],
+        "session": [
+          "user_id"
+        ],
+        "query": [
+          "see source"
+        ]
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": null,
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "PARTIAL",
+      "contract_test": true,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/get_profile.php",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "inputs": {
+        "body": [],
+        "session": [
+          "user_id"
+        ],
+        "query": []
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": null,
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "LEGACY_ONLY",
+      "contract_test": true,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/get_server_name.php",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "inputs": {
+        "body": [],
+        "session": [
+          "user_id"
+        ],
+        "query": [
+          "see source"
+        ]
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": "App\\Http\\Controllers\\ServerController::class",
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "MIGRATED",
+      "contract_test": true,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/get_servers.php",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "inputs": {
+        "body": [],
+        "session": [
+          "user_id"
+        ],
+        "query": []
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": "App\\Http\\Controllers\\ServerController::class",
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "MIGRATED",
+      "contract_test": true,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/get_user_profile.php",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "inputs": {
+        "body": [],
+        "session": [
+          "user_id"
+        ],
+        "query": [
+          "see source"
+        ]
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": null,
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "LEGACY_ONLY",
+      "contract_test": true,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/get_user_servers.php",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "inputs": {
+        "body": [],
+        "session": [
+          "user_id"
+        ],
+        "query": [
+          "see source"
+        ]
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": null,
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "PARTIAL",
+      "contract_test": true,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/get_users_in_server.php",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "inputs": {
+        "body": [],
+        "session": [
+          "user_id"
+        ],
+        "query": [
+          "see source"
+        ]
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": null,
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "PARTIAL",
+      "contract_test": true,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/health.php",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "inputs": {
+        "body": [],
+        "session": [],
+        "query": []
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": null,
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "LEGACY_ONLY",
+      "contract_test": false,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/kick_member.php",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "inputs": {
+        "body": [
+          "see source"
+        ],
+        "session": [
+          "user_id"
+        ],
+        "query": []
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": null,
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "PARTIAL",
+      "contract_test": true,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/laravel_proxy.php",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "inputs": {
+        "body": [],
+        "session": [],
+        "query": []
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": "string $abstract",
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "MIGRATED",
+      "contract_test": false,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/login.php",
+      "methods": [
+        "POST"
+      ],
+      "inputs": {
+        "body": [
+          "see source"
+        ],
+        "session": [
+          "user_id"
+        ],
+        "query": []
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": null,
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "PARTIAL",
+      "contract_test": true,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/logout.php",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "inputs": {
+        "body": [],
+        "session": [],
+        "query": []
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": null,
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "LEGACY_ONLY",
+      "contract_test": true,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/permissions.php",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "inputs": {
+        "body": [],
+        "session": [],
+        "query": []
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": null,
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "PARTIAL",
+      "contract_test": false,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/register.php",
+      "methods": [
+        "POST"
+      ],
+      "inputs": {
+        "body": [
+          "see source"
+        ],
+        "session": [],
+        "query": []
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": null,
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "PARTIAL",
+      "contract_test": true,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/send_dm.php",
+      "methods": [
+        "POST"
+      ],
+      "inputs": {
+        "body": [
+          "see source"
+        ],
+        "session": [
+          "user_id"
+        ],
+        "query": []
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": null,
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "PARTIAL",
+      "contract_test": true,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/send_message.php",
+      "methods": [
+        "POST"
+      ],
+      "inputs": {
+        "body": [
+          "see source"
+        ],
+        "session": [
+          "user_id"
+        ],
+        "query": []
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": "App\\Http\\Controllers\\MessageController::class",
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "MIGRATED",
+      "contract_test": true,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/set_member_role.php",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "inputs": {
+        "body": [
+          "see source"
+        ],
+        "session": [
+          "user_id"
+        ],
+        "query": []
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": null,
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "PARTIAL",
+      "contract_test": true,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/start_dm.php",
+      "methods": [
+        "POST"
+      ],
+      "inputs": {
+        "body": [
+          "see source"
+        ],
+        "session": [
+          "user_id"
+        ],
+        "query": []
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": null,
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "PARTIAL",
+      "contract_test": true,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/update_account.php",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "inputs": {
+        "body": [
+          "see source"
+        ],
+        "session": [
+          "user_id"
+        ],
+        "query": []
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": null,
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "PARTIAL",
+      "contract_test": true,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/update_profile.php",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "inputs": {
+        "body": [
+          "see source"
+        ],
+        "session": [
+          "user_id"
+        ],
+        "query": []
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": null,
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "LEGACY_ONLY",
+      "contract_test": true,
+      "legacy_invariants": []
+    },
+    {
+      "file": "api/xxx.php",
+      "methods": [
+        "GET",
+        "POST"
+      ],
+      "inputs": {
+        "body": [],
+        "session": [],
+        "query": []
+      },
+      "outputs": [
+        {
+          "case": "see_source",
+          "http_code": "varies",
+          "shape": "see controller/sql path"
+        }
+      ],
+      "dependencies": {
+        "controller": "App\\Http\\Controllers\\Api\\XxxController::class",
+        "service": null,
+        "repository": null
+      },
+      "migration_status": "MIGRATED",
+      "contract_test": false,
+      "legacy_invariants": []
+    }
+  ]
+}
