@@ -18,7 +18,7 @@ final class BanUserController extends Controller
 
     public function handle(Request $request): JsonResponse
     {
-        $userId = $request->session()->get('user_id');
+        $userId = $_SESSION['user_id'] ?? null;
         if (!is_numeric($userId)) {
             // @legacy-invariant: auth manquante retourne HTTP 200 et message legacy.
             return response()->json(['success' => false, 'error' => 'Non authentifié'], 200);
