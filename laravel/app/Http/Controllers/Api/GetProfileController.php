@@ -18,7 +18,7 @@ final class GetProfileController extends Controller
 
     public function handle(Request $request): JsonResponse
     {
-        $userId = $request->session()->get('user_id');
+        $userId = $_SESSION['user_id'] ?? null;
         if (!is_numeric($userId)) {
             return response()->json(['success' => false, 'error' => 'Utilisateur non connecté'], 401);
         }
