@@ -152,6 +152,7 @@ final class BiscordHttpClient
             'status' => $status,
             'headers' => $responseHeaders,
             'body' => $rawBody,
+            'raw' => $rawBody,
             'json' => $json,
         ];
     }
