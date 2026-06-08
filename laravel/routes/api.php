@@ -68,9 +68,10 @@ Route::get('/get_channels.php', static function (Request $request, ChannelContro
     return $controller->index($userId, (int) $request->query('server_id', 0));
 });
 
+Route::any('/create_server.php', [LegacyBridgeController::class, 'handle'])
+    ->defaults('endpoint', 'create_server');
+
 Route::middleware(['auth.session'])->group(function (): void {
-    Route::any('/create_server.php', [LegacyBridgeController::class, 'handle'])
-        ->defaults('endpoint', 'create_server');
     Route::get('/get_messages.php', [LegacyBridgeController::class, 'handle'])
         ->defaults('endpoint', 'get_messages');
     Route::post('/send_message.php', [LegacyBridgeController::class, 'handle'])
