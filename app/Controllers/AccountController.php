@@ -52,7 +52,7 @@ final class AccountController
                     'statusCode' => 200,
                     'payload' => [
                         'success' => false,
-                        'error' => 'Nom d'utilisateur ou email déjà utilisé',
+                        'error' => "Nom d'utilisateur ou email déjà utilisé",
                     ],
                 ];
             }
