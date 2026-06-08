@@ -4,17 +4,21 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
-use Illuminate\Support\Facades\DB;
+use PDO;
 
 final class InvitationRepository
 {
+    public function __construct(private PDO $pdo)
+    {
+    }
+
     public function findServerIdByCode(string $code): ?int
     {
-        $serverId = DB::table('invitations')
-            ->where('code', $code)
-            ->value('server_id');
+        $stmt = $this->pdo->prepare('SELECT server_id FROM invitations WHERE code = ? LIMIT 1');
+        $stmt->execute([$code]);
+        $serverId = $stmt->fetchColumn();
 
-        if ($serverId === null) {
+        if ($serverId === false) {
             return null;
         }
 
@@ -23,25 +27,21 @@ final class InvitationRepository
 
     public function isUserMemberOfServer(int $serverId, int $userId): bool
     {
-        return DB::table('server_members')
-            ->where('server_id', $serverId)
-            ->where('user_id', $userId)
-            ->exists();
+        $stmt = $this->pdo->prepare('SELECT 1 FROM server_members WHERE server_id = ? AND user_id = ? LIMIT 1');
+        $stmt->execute([$serverId, $userId]);
+
+        return $stmt->fetchColumn() !== false;
     }
 
     public function addUserToServer(int $serverId, int $userId): void
     {
-        DB::table('server_members')->insert([
-            'server_id' => $serverId,
-            'user_id' => $userId,
-        ]);
+        $stmt = $this->pdo->prepare('INSERT INTO server_members (server_id, user_id) VALUES (?, ?)');
+        $stmt->execute([$serverId, $userId]);
     }
 
     public function createInvitation(int $serverId, string $code): void
     {
-        DB::table('invitations')->insert([
-            'server_id' => $serverId,
-            'code' => $code,
-        ]);
+        $stmt = $this->pdo->prepare('INSERT INTO invitations (server_id, code) VALUES (?, ?)');
+        $stmt->execute([$serverId, $code]);
     }
 }
