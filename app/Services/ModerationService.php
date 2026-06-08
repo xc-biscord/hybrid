@@ -18,10 +18,6 @@ final class ModerationService
 
     public function getMyServerRole(int $userId, ?int $serverId): ?string
     {
-        if ($this->permissionService->isP1($userId)) {
-            return 'P1';
-        }
-
         if ($serverId === null) {
             return null;
         }
@@ -51,7 +47,7 @@ final class ModerationService
             throw new \InvalidArgumentException('Rôle invalide');
         }
 
-        if (!$this->permissionService->hasPermission($actorUserId, $serverId, ['P2'])) {
+        if (!$this->permissionService->hasPermission($actorUserId, $serverId, ['P2', 'P3'])) {
             throw new \DomainException('Permission refusée');
         }
 
@@ -60,7 +56,7 @@ final class ModerationService
 
     public function kickMember(int $actorUserId, int $serverId, int $targetUserId): void
     {
-        if (!$this->permissionService->hasPermission($actorUserId, $serverId, ['P2'])) {
+        if (!$this->permissionService->hasPermission($actorUserId, $serverId, ['P2', 'P3'])) {
             throw new \DomainException('Permission refusée');
         }
 
