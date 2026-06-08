@@ -18,7 +18,7 @@ final class GetUserProfileController extends Controller
 
     public function handle(Request $request): JsonResponse
     {
-        $sessionUserId = $request->session()->get('user_id');
+        $sessionUserId = $_SESSION['user_id'] ?? null;
         if (!isset($sessionUserId)) {
             // @legacy-invariant: non connecté retourne 200, pas 401.
             return response()->json(['success' => false, 'error' => 'Non connecté'], 200);
