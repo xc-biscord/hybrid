@@ -27,6 +27,6 @@ final class UpdateProfileController extends Controller
 
         $this->service->upsertProfile($userId, $bio, $avatarUrl, $status);
 
-        return response()->json(['success' => true], 200);
+        return new JsonResponse(['success' => true], 200);
     }
 }
