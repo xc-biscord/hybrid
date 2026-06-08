@@ -21,26 +21,26 @@ final class BanUserController extends Controller
         $userId = $_SESSION['user_id'] ?? null;
         if (!is_numeric($userId)) {
             // @legacy-invariant: auth manquante retourne HTTP 200 et message legacy.
-            return response()->json(['success' => false, 'error' => 'Non authentifié'], 200);
+            return new JsonResponse(['success' => false, 'error' => 'Non authentifié'], 200);
         }
 
         $currentUserId = (int) $userId;
 
         if (!$this->banUserService->isP1($currentUserId)) {
             // @legacy-invariant: refus permission retourne HTTP 200 (pas 403).
-            return response()->json(['success' => false, 'error' => 'Accès refusé : réservé aux P1'], 200);
+            return new JsonResponse(['success' => false, 'error' => 'Accès refusé : réservé aux P1'], 200);
         }
 
         $targetUserId = (int) ($request->input('user_id', 0));
         if (!$targetUserId) {
-            return response()->json(['success' => false, 'error' => 'user_id invalide'], 200);
+            return new JsonResponse(['success' => false, 'error' => 'user_id invalide'], 200);
         }
 
         try {
             $this->banUserService->banUser($targetUserId);
-            return response()->json(['success' => true], 200);
+            return new JsonResponse(['success' => true], 200);
         } catch (PDOException $e) {
-            return response()->json(['success' => false, 'error' => 'Erreur DB : ' . $e->getMessage()], 200);
+            return new JsonResponse(['success' => false, 'error' => 'Erreur DB : ' . $e->getMessage()], 200);
         }
     }
 }
