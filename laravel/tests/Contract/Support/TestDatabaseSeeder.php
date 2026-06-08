@@ -66,10 +66,12 @@ final class TestDatabaseSeeder
         $pdo->prepare('INSERT INTO global_permissions (user_id, permission_level) VALUES (?, ?)')
             ->execute([self::USER_ADMIN_ID, 'P1']);
 
-        $pdo->prepare('INSERT INTO servers (id, name, owner_id, created_at) VALUES (?, ?, ?, NOW())')
-            ->execute([self::SERVER_1_ID, 'Server One', self::USER_ALICE_ID]);
+        $serverStmt = $pdo->prepare('INSERT INTO servers (id, name, owner_id, created_at) VALUES (?, ?, ?, NOW())');
+        $serverStmt->execute([1, 'Hub Biscord', self::USER_ADMIN_ID]);
+        $serverStmt->execute([self::SERVER_1_ID, 'Server One', self::USER_ALICE_ID]);
 
         $channelStmt = $pdo->prepare('INSERT INTO channels (id, server_id, name, created_at) VALUES (?, ?, ?, NOW())');
+        $channelStmt->execute([1, 1, 'general']);
         $channelStmt->execute([self::CHANNEL_1_ID, self::SERVER_1_ID, 'general']);
 
         $memberStmt = $pdo->prepare('INSERT INTO server_members (user_id, server_id, role, joined_at) VALUES (?, ?, ?, NOW())');

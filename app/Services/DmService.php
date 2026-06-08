@@ -19,7 +19,7 @@ final class DmService
      */
     public function startConversationFromPayload(int $currentUserId, array $input): array
     {
-        $otherUserId = (int) ($input['other_user_id'] ?? 0);
+        $otherUserId = (int) ($input['target_user_id'] ?? $input['other_user_id'] ?? 0);
         if ($otherUserId <= 0 || $otherUserId === $currentUserId) {
             throw new InvalidArgumentException('Identifiant utilisateur invalide');
         }

@@ -14,7 +14,7 @@ final class BanUserRepository
 
     public function isP1(int $userId): bool
     {
-        $stmt = $this->pdo->prepare('SELECT 1 FROM global_permissions WHERE user_id = ? AND permission = ? LIMIT 1');
+        $stmt = $this->pdo->prepare('SELECT 1 FROM global_permissions WHERE user_id = ? AND permission_level = ? LIMIT 1');
         $stmt->execute([$userId, 'P1']);
 
         return $stmt->fetchColumn() !== false;

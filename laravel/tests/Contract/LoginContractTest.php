@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Contract;
 
+use Tests\Contract\Support\TestAccounts;
+
 /**
  * Contract tests for POST /api/login.php
  *
@@ -24,8 +26,8 @@ final class LoginContractTest extends ContractTestCase
     public function test_login_success_with_username_returns_200_and_user_id(): void
     {
         $response = $this->client->postJson('/api/login.php', [
-            'username' => 'alice',
-            'password' => 'password_alice',
+            'username' => TestAccounts::username('alice'),
+            'password' => TestAccounts::password('alice'),
         ]);
 
         // @legacy-invariant: login réussi retourne HTTP 200, pas 201
@@ -40,8 +42,8 @@ final class LoginContractTest extends ContractTestCase
         // @legacy-invariant: le champ `username` accepte aussi une adresse e-mail
         // (la requête SQL fait : WHERE username = :username OR email = :username)
         $response = $this->client->postJson('/api/login.php', [
-            'username' => 'alice@example.test',
-            'password' => 'password_alice',
+            'username' => TestAccounts::get('alice')['email'],
+            'password' => TestAccounts::password('alice'),
         ]);
 
         $this->assertSame(200, $response['status']);
@@ -66,7 +68,7 @@ final class LoginContractTest extends ContractTestCase
     {
         $response = $this->client->postJson('/api/login.php', [
             'username' => '',
-            'password' => 'password_alice',
+            'password' => TestAccounts::password('alice'),
         ]);
 
         $this->assertSame(400, $response['status']);
@@ -77,7 +79,7 @@ final class LoginContractTest extends ContractTestCase
     public function test_login_missing_password_returns_400(): void
     {
         $response = $this->client->postJson('/api/login.php', [
-            'username' => 'alice',
+            'username' => TestAccounts::username('alice'),
             'password' => '',
         ]);
 
@@ -89,7 +91,7 @@ final class LoginContractTest extends ContractTestCase
     public function test_login_wrong_password_returns_401(): void
     {
         $response = $this->client->postJson('/api/login.php', [
-            'username' => 'alice',
+            'username' => TestAccounts::username('alice'),
             'password' => 'mauvais_mot_de_passe',
         ]);
 
