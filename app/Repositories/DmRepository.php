@@ -34,6 +34,14 @@ final class DmRepository
         return (int) $this->pdo->lastInsertId();
     }
 
+    public function conversationExists(int $conversationId): bool
+    {
+        $stmt = $this->pdo->prepare('SELECT 1 FROM dm_conversations WHERE id = ? LIMIT 1');
+        $stmt->execute([$conversationId]);
+
+        return $stmt->fetchColumn() !== false;
+    }
+
     /**
      * @return array{user1_id:int,user2_id:int}|null
      */

@@ -13,7 +13,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton(PDO::class, static fn (): PDO => DB::connection()->getPdo());
+        $this->app->singleton(PDO::class, static function (): PDO {
+            global $pdo;
+
+            if ($pdo instanceof PDO) {
+                return $pdo;
+            }
+
+            return DB::connection()->getPdo();
+        });
     }
 
     /**
