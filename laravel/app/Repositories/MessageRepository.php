@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
-use Illuminate\Support\Facades\DB;
 use PDO;
 
 final class MessageRepository
@@ -49,25 +48,25 @@ final class MessageRepository
      */
     public function findByChannelId(int $channelId): array
     {
-        return DB::table('messages as m')
-            ->join('users as u', 'u.id', '=', 'm.user_id')
-            ->leftJoin('profiles as p', 'p.user_id', '=', 'u.id')
-            ->where('m.channel_id', $channelId)
-            ->orderBy('m.created_at')
-            ->orderBy('m.id')
-            ->select('m.id', 'm.content', 'm.created_at', 'u.username', 'u.id as user_id', 'p.avatar_url')
-            ->get()
-            ->map(fn(object $r): array => (array) $r)
-            ->all();
+        $stmt = $this->pdo->prepare('
+            SELECT m.id, m.content, m.created_at, u.username, u.id AS user_id, p.avatar_url
+            FROM messages m
+            JOIN users u ON u.id = m.user_id
+            LEFT JOIN profiles p ON p.user_id = u.id
+            WHERE m.channel_id = ?
+            ORDER BY m.created_at ASC, m.id ASC
+        ');
+        $stmt->execute([$channelId]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
 
     public function create(int $channelId, int $userId, string $content): int
     {
-        return (int) DB::table('messages')->insertGetId([
-            'channel_id' => $channelId,
-            'user_id'    => $userId,
-            'content'    => $content,
-        ]);
+        $stmt = $this->pdo->prepare('INSERT INTO messages (channel_id, user_id, content) VALUES (?, ?, ?)');
+        $stmt->execute([$channelId, $userId, $content]);
+
+        return (int) $this->pdo->lastInsertId();
     }
 
     // PDO conservé : JOIN messages+channels, migration prévue en phase 2
