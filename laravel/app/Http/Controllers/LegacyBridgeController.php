@@ -48,6 +48,11 @@ final class LegacyBridgeController extends Controller
                     return $methodError;
                 }
 
+                $authError = $this->validateSessionAuthentication($request);
+                if ($authError !== null) {
+                    return $authError;
+                }
+
                 $payload = $this->extractCreateServerJsonInput($request);
                 if ($payload instanceof JsonResponse) {
                     return $payload;
