@@ -4,29 +4,30 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
-use Illuminate\Support\Facades\DB;
+use PDO;
 
 final class ChannelRepository
 {
+    public function __construct(private PDO $pdo)
+    {
+    }
+
     /**
      * @return array<int, array{id:int,name:string}>
      */
     public function findByServerId(int $serverId): array
     {
-        return DB::table('channels')
-            ->where('server_id', $serverId)
-            ->orderBy('id')
-            ->select('id', 'name')
-            ->get()
-            ->map(fn(object $r): array => (array) $r)
-            ->all();
+        $stmt = $this->pdo->prepare('SELECT id, name FROM channels WHERE server_id = ? ORDER BY id ASC');
+        $stmt->execute([$serverId]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
 
     public function create(int $serverId, string $name): int
     {
-        return (int) DB::table('channels')->insertGetId([
-            'server_id' => $serverId,
-            'name'      => $name,
-        ]);
+        $stmt = $this->pdo->prepare('INSERT INTO channels (server_id, name) VALUES (?, ?)');
+        $stmt->execute([$serverId, $name]);
+
+        return (int) $this->pdo->lastInsertId();
     }
 }
