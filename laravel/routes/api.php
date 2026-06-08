@@ -71,16 +71,17 @@ Route::get('/get_channels.php', static function (Request $request, ChannelContro
 Route::any('/create_server.php', [LegacyBridgeController::class, 'handle'])
     ->defaults('endpoint', 'create_server');
 
-Route::middleware(['auth.session'])->group(function (): void {
-    Route::get('/get_messages.php', [LegacyBridgeController::class, 'handle'])
-        ->defaults('endpoint', 'get_messages');
-    Route::post('/send_message.php', [LegacyBridgeController::class, 'handle'])
-        ->defaults('endpoint', 'send_message');
-    Route::post('/create_invite.php', [LegacyBridgeController::class, 'handle'])
-        ->defaults('endpoint', 'create_invite');
-    Route::post('/accept_invite.php', [LegacyBridgeController::class, 'handle'])
-        ->defaults('endpoint', 'accept_invite');
-});
+Route::get('/get_messages.php', [LegacyBridgeController::class, 'handle'])
+    ->defaults('endpoint', 'get_messages');
+
+Route::any('/send_message.php', [LegacyBridgeController::class, 'handle'])
+    ->defaults('endpoint', 'send_message');
+
+Route::post('/create_invite.php', [LegacyBridgeController::class, 'handle'])
+    ->defaults('endpoint', 'create_invite');
+
+Route::post('/accept_invite.php', [LegacyBridgeController::class, 'handle'])
+    ->defaults('endpoint', 'accept_invite');
 
 Route::any('/create_channel.php', [LegacyBridgeController::class, 'handle'])
     ->defaults('endpoint', 'create_channel');
