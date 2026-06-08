@@ -20,19 +20,19 @@ final class GetProfileController extends Controller
     {
         $userId = $_SESSION['user_id'] ?? null;
         if (!is_numeric($userId)) {
-            return response()->json(['success' => false, 'error' => 'Utilisateur non connecté'], 401);
+            return new JsonResponse(['success' => false, 'error' => 'Utilisateur non connecté'], 401);
         }
 
         try {
             $profile = $this->getProfileService->getProfile((int) $userId);
             if ($profile === null) {
                 // @legacy-invariant: profil introuvable retourne 200, pas 404.
-                return response()->json(['success' => false, 'error' => 'Profil introuvable'], 200);
+                return new JsonResponse(['success' => false, 'error' => 'Profil introuvable'], 200);
             }
 
-            return response()->json(['success' => true, 'profile' => $profile], 200);
+            return new JsonResponse(['success' => true, 'profile' => $profile], 200);
         } catch (Exception $e) {
-            return response()->json(['success' => false, 'error' => 'Erreur serveur', 'details' => $e->getMessage()], 500);
+            return new JsonResponse(['success' => false, 'error' => 'Erreur serveur', 'details' => $e->getMessage()], 500);
         }
     }
 }
