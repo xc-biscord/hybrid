@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ChannelController;
 use App\Http\Controllers\DmController;
 use App\Http\Controllers\LegacyBridgeController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\RoleModerationController;
+use App\Http\Controllers\ServerController;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\SendDmRequest;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
@@ -23,15 +26,51 @@ Route::post('/register.php', function (RegisterRequest $request, AuthController 
     return $controller->register($request->validated());
 });
 
+$requireLegacySession = static function (): int|JsonResponse {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    if (!isset($_SESSION['user_id']) || !is_numeric($_SESSION['user_id'])) {
+        return new JsonResponse([
+            'success' => false,
+            'error' => 'Non authentifié',
+        ], 401);
+    }
+
+    return (int) $_SESSION['user_id'];
+};
+
+Route::get('/get_servers.php', static function (ServerController $controller) use ($requireLegacySession) {
+    $userId = $requireLegacySession();
+    if ($userId instanceof JsonResponse) {
+        return $userId;
+    }
+
+    return $controller->index($userId);
+});
+
+Route::get('/get_server_name.php', static function (Request $request, ServerController $controller) use ($requireLegacySession) {
+    $auth = $requireLegacySession();
+    if ($auth instanceof JsonResponse) {
+        return $auth;
+    }
+
+    return $controller->showName((int) $request->query('id', 0));
+});
+
+Route::get('/get_channels.php', static function (Request $request, ChannelController $controller) use ($requireLegacySession) {
+    $userId = $requireLegacySession();
+    if ($userId instanceof JsonResponse) {
+        return $userId;
+    }
+
+    return $controller->index($userId, (int) $request->query('server_id', 0));
+});
+
 Route::middleware(['auth.session'])->group(function (): void {
-    Route::get('/get_servers.php', [LegacyBridgeController::class, 'handle'])
-        ->defaults('endpoint', 'get_servers');
     Route::any('/create_server.php', [LegacyBridgeController::class, 'handle'])
         ->defaults('endpoint', 'create_server');
-    Route::get('/get_server_name.php', [LegacyBridgeController::class, 'handle'])
-        ->defaults('endpoint', 'get_server_name');
-    Route::get('/get_channels.php', [LegacyBridgeController::class, 'handle'])
-        ->defaults('endpoint', 'get_channels');
     Route::get('/get_messages.php', [LegacyBridgeController::class, 'handle'])
         ->defaults('endpoint', 'get_messages');
     Route::post('/send_message.php', [LegacyBridgeController::class, 'handle'])
