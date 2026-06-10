@@ -32,8 +32,8 @@ Par défaut, la suite utilise :
 - `CONTRACT_TEST_DB_HOST=localhost`
 - `CONTRACT_TEST_DB_PORT=3306`
 - `CONTRACT_TEST_DB_DATABASE=biscord_db_tests`
-- `CONTRACT_TEST_DB_USERNAME=adminweb`
-- `CONTRACT_TEST_DB_PASSWORD=MazdeoAchaqui`
+- `CONTRACT_TEST_DB_USERNAME=biscord_test_app`
+- `CONTRACT_TEST_DB_PASSWORD=<rotated-secret>`
 
 Vous pouvez surcharger ces variables avant exécution si nécessaire.
 
@@ -88,7 +88,7 @@ Comptes seedés après chaque `resetAndSeed()` :
 Depuis `laravel/` :
 
 ```bash
-php -r '$pdo=new PDO("mysql:host=127.0.0.1;port=3306;dbname=biscord_db_tests;charset=utf8mb4","adminweb","MazdeoAchaqui"); $s=$pdo->query("SELECT id,username,email,password_hash FROM users WHERE username=\'alice\' LIMIT 1"); var_export($s->fetch(PDO::FETCH_ASSOC)); echo PHP_EOL;'
+php -r '$pdo=new PDO("mysql:host=127.0.0.1;port=3306;dbname=biscord_db_tests;charset=utf8mb4","biscord_test_app","<rotated-secret>"); $s=$pdo->query("SELECT id,username,email,password_hash FROM users WHERE username=\'alice\' LIMIT 1"); var_export($s->fetch(PDO::FETCH_ASSOC)); echo PHP_EOL;'
 ```
 
 ### 2) Vérifier le login legacy (`POST /api/login.php`)
