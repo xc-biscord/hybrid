@@ -37,8 +37,8 @@ DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=biscord_db
-DB_USERNAME=adminweb
-DB_PASSWORD=MazdeoAchaqui
+DB_USERNAME=biscord_test_app
+DB_PASSWORD=<rotated-secret>
 
 SESSION_DRIVER=file
 SESSION_LIFETIME=120
@@ -63,7 +63,7 @@ Attendu: `DB OK`.
 Un test direct PDO a été tenté vers `biscord_db`:
 
 ```bash
-php -r '$pdo=new PDO("mysql:host=127.0.0.1;port=3306;dbname=biscord_db;charset=utf8mb4","adminweb","MazdeoAchaqui"); echo "ok\n";'
+php -r '$pdo=new PDO("mysql:host=127.0.0.1;port=3306;dbname=biscord_db;charset=utf8mb4","biscord_test_app","<rotated-secret>"); echo "ok\n";'
 ```
 
 Résultat:

@@ -95,8 +95,8 @@ final class TestDatabaseSeeder
         $host = self::resolveConfigValue('CONTRACT_TEST_DB_HOST', 'DB_HOST', '127.0.0.1');
         $port = self::resolveConfigValue('CONTRACT_TEST_DB_PORT', 'DB_PORT', '3306');
         $db = self::resolveConfigValue('CONTRACT_TEST_DB_DATABASE', 'DB_DATABASE', 'biscord_db_tests');
-        $user = self::resolveConfigValue('CONTRACT_TEST_DB_USERNAME', 'DB_USERNAME', 'adminweb');
-        $pass = self::resolveConfigValue('CONTRACT_TEST_DB_PASSWORD', 'DB_PASSWORD', 'MazdeoAchaqui');
+        $user = self::resolveConfigValue('CONTRACT_TEST_DB_USERNAME', 'DB_USERNAME', 'biscord_test_app');
+        $pass = self::resolveConfigValue('CONTRACT_TEST_DB_PASSWORD', 'DB_PASSWORD', '<rotated-secret>');
 
         $pdo = new PDO(
             sprintf('mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4', $host, $port, $db),
