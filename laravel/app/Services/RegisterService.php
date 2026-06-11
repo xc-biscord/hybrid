@@ -34,7 +34,6 @@ final class RegisterService
             $this->pdo->beginTransaction();
 
             $userId = $this->userRepository->create($username, $email, $passwordHash);
-            $_SESSION['user_id'] = $userId;
 
             $this->profileRepository->create(
                 $userId,
@@ -53,6 +52,14 @@ final class RegisterService
             );
 
             $this->pdo->commit();
+
+            // Session ouverte seulement une fois le compte réellement créé,
+            // avec un nouvel ID de session (anti-fixation).
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                session_regenerate_id(true);
+            }
+            $_SESSION['user_id'] = $userId;
+            $_SESSION['username'] = $username;
 
             return $userId;
         } catch (PDOException $e) {
