@@ -19,9 +19,11 @@
   <meta name="twitter:description" content="Rejoignez la révolution Biscord : plus rapide, plus fluide, plus libre. 🚀">
   <meta name="twitter:image" content="https://biscord-api-stg.xcsoftworks.com/assets/banniere.png">
 
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles/auth.css?v=8.4">
-  <script src="index.js?v=6.6" defer></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/auth.css?v=9.0">
+  <script src="index.js?v=7.0" defer></script>
   <link rel="stylesheet" href="styles/test-environment.css?v=2">
   <script src="test-environment.js?v=2" defer></script>
 </head>
@@ -29,109 +31,122 @@
 <body>
 
   <div class="wrapper">
+
+    <!-- Déjà connecté -->
     <div id="connected-user-message" class="card hidden fade-in">
-      <h2>Vous êtes connecté avec le compte <span id="connected-username"></span></h2>
-      <p class="info-row">
-        Ce n'est pas vous ?
-        <a href="api/logout.php" class="link-btn">Changer de compte</a>
+      <img class="avatar" src="assets/default-user.png" alt="" />
+      <h1>Te revoilà, <span id="connected-username"></span> !</h1>
+      <p class="subtitle">Ta session est toujours active.</p>
+      <a href="/accueil.html" class="btn-primary">Ouvrir Biscord</a>
+      <p class="alt-action">
+        Ce n'est pas toi ?
+        <a href="api/logout.php" class="text-link">Se déconnecter</a>
       </p>
-      <div class="button-group center">
-        <a href="/accueil" class="btn-api">Lancer le cœur Biscord</a>
-      </div>
     </div>
 
-    <!-- Accueil -->
-    <div id="welcome-screen" class="card visible fade-in">
-      <h1>Eh, te revoilà !</h1>
-      <p>On est super heureux de te revoir !</p>
-      <p>Choisis une option :</p>
-      <div class="button-group">
-        <button class="btn-api" onclick="afficherFormulaire('inscription')">S'inscrire</button>
-        <button class="btn-api" onclick="afficherFormulaire('connexion')">Se connecter</button>
-      </div>
-    </div>
+    <!-- Connexion -->
+    <form id="form-connexion" class="card fade-in" autocomplete="off" novalidate>
+      <h1>Ravi de te revoir !</h1>
+      <p class="subtitle">On est super heureux de te revoir !</p>
 
-    <!-- Formulaire inscription -->
-    <form id="form-inscription" class="card hidden fade-in" autocomplete="off">
-      <h2>Créer un compte</h2>
-      <label for="email">Adresse mail *:</label>
-      <input type="email" id="email" name="biscord_email" required autocomplete="off">
-
-      <label for="username">Nom d'utilisateur *:</label>
-      <input type="text" id="username" name="biscord_username" required autocomplete="off">
-
-      <label for="mdp">Mot de passe *:</label>
-      <input type="password" id="mdp" name="biscord_password" required autocomplete="new-password">
-
-      <div id="password-strength">
-        <div class="strength-bar"></div>
+      <div class="field">
+        <label for="identifiant">E-mail ou nom d'utilisateur <span class="required">*</span></label>
+        <input type="text" id="identifiant" name="biscord_identifiant" required autocomplete="username">
       </div>
 
-      <label for="confirmation">Confirmer le mot de passe *:</label>
-      <input type="password" id="confirmation" name="biscord_password_confirm" required autocomplete="new-password">
-
-      <div class="button-group">
-        <input type="submit" value="S'inscrire" class="btn-api" />
-        <button type="button" class="link-btn" onclick="echangerFormulaire()">Vous avez déjà un compte?</button>
+      <div class="field">
+        <label for="mdp-connexion">Mot de passe <span class="required">*</span></label>
+        <input type="password" id="mdp-connexion" name="biscord_connexion_mdp" required autocomplete="current-password">
       </div>
+
+      <input type="submit" value="Se connecter" class="btn-primary" />
+
+      <p class="alt-action">
+        Besoin d'un compte ?
+        <button type="button" class="text-link" onclick="echangerFormulaire()">S'inscrire</button>
+      </p>
     </form>
 
-    <!-- Formulaire connexion -->
-    <form id="form-connexion" class="card hidden fade-in" autocomplete="off">
-      <h2>Se connecter</h2>
-      <label for="identifiant">Nom d'utilisateur ou adresse mail *:</label>
-      <input type="text" id="identifiant" name="biscord_identifiant" required autocomplete="off">
+    <!-- Inscription -->
+    <form id="form-inscription" class="card hidden fade-in" autocomplete="off" novalidate>
+      <h1>Créer un compte</h1>
+      <p class="subtitle">Rejoins la révolution Biscord 🚀</p>
 
-      <label for="mdp-connexion">Mot de passe *:</label>
-      <input type="password" id="mdp-connexion" name="biscord_connexion_mdp" required autocomplete="current-password">
+      <div class="field">
+        <label for="email">E-mail <span class="required">*</span></label>
+        <input type="email" id="email" name="biscord_email" required autocomplete="off">
+      </div>
 
-      <div class="button-group">
-        <input type="submit" value="Connexion" class="btn-api" />
-        <button type="button" class="link-btn" onclick="echangerFormulaire()">Vous n'avez pas de compte?</button>
+      <div class="field">
+        <label for="username">Nom d'utilisateur <span class="required">*</span></label>
+        <input type="text" id="username" name="biscord_username" required minlength="2" maxlength="32" autocomplete="off">
       </div>
-      <div id="loader" class="hidden">
-        <div class="spinner"></div>
+
+      <div class="field">
+        <label for="mdp">Mot de passe <span class="required">*</span></label>
+        <input type="password" id="mdp" name="biscord_password" required minlength="8" autocomplete="new-password">
+        <div id="password-strength">
+          <div class="strength-bar"></div>
+        </div>
       </div>
+
+      <div class="field">
+        <label for="confirmation">Confirmer le mot de passe <span class="required">*</span></label>
+        <input type="password" id="confirmation" name="biscord_password_confirm" required autocomplete="new-password">
+      </div>
+
+      <input type="submit" value="Continuer" class="btn-primary" />
+
+      <p class="alt-action">
+        Tu as déjà un compte ?
+        <button type="button" class="text-link" onclick="echangerFormulaire()">Se connecter</button>
+      </p>
     </form>
 
-    <!-- Statut Serveurs -->
-    <div id="server-status-card" class="card fade-in" style="text-align: left;">
-      <h2 style="text-align: center;">📡 Santé des serveurs</h2>
-
-      <div class="status-line">
-        <div class="status-text">
-          <strong>🔗 Organe connexion/inscription</strong>
-          <div class="ping-time-label" id="ping-start-login"></div>
-        </div>
-
-
-        <div class="ping-metrics">
-          <span id="ping-average-login" class="ping-average">--ms</span>
-          <div id="status-login" class="status-cube"></div>
-        </div>
+    <!-- État des services -->
+    <section id="server-status-card" class="card status-card fade-in" aria-label="État des services Biscord">
+      <div class="status-card-header">
+        <h2>État des services</h2>
+        <span id="overall-status" class="status-pill">
+          <span class="pill-dot"></span>
+          <span id="overall-status-text">Vérification…</span>
+        </span>
       </div>
-      <div id="ping-history-login" class="ping-history-bar"></div>
-      <div class="status-line">
-        <div class="status-text">
-          <strong>📨 Organe d'envoi/réception de messages</strong>
-          <div class="ping-time-label" id="ping-start-send"></div>
+
+      <div class="service">
+        <div class="service-top">
+          <span class="service-name">🔗 Connexion &amp; inscription</span>
+          <div class="service-metrics">
+            <span id="ping-average-login" class="ping-average">-- ms</span>
+            <span id="status-login" class="status-dot"></span>
+          </div>
         </div>
-
-
-        <div class="ping-metrics">
-          <span id="ping-average-send" class="ping-average">--ms</span>
-          <div id="status-send" class="status-cube"></div>
-        </div>
-
+        <div id="ping-history-login" class="uptime-bar" aria-hidden="true"></div>
+        <div class="service-meta" id="ping-start-login"></div>
       </div>
-      <div id="ping-history-send" class="ping-history-bar"></div>
 
-    </div>
+      <div class="service">
+        <div class="service-top">
+          <span class="service-name">📨 Envoi &amp; réception de messages</span>
+          <div class="service-metrics">
+            <span id="ping-average-send" class="ping-average">-- ms</span>
+            <span id="status-send" class="status-dot"></span>
+          </div>
+        </div>
+        <div id="ping-history-send" class="uptime-bar" aria-hidden="true"></div>
+        <div class="service-meta" id="ping-start-send"></div>
+      </div>
+
+      <a href="/status.html" class="btn-status">
+        Statut détaillé de l'API — tous les endpoints
+        <span aria-hidden="true">→</span>
+      </a>
+    </section>
 
     <div class="server-location-info">
-      <p>Vous êtes connecté à <strong>biscord-api-stg-helsi</strong> <span class="separator">//</span> Helsinki, Finlande</p>
+      <p>Connecté à <strong>biscord-api-stg-helsi</strong> <span class="separator">//</span> Helsinki, Finlande</p>
     </div>
-    
+
     <div id="biscord-toast" class="hidden toast-wrapper">
       <div class="toast-message">
         <strong id="toast-title"></strong>
@@ -139,111 +154,7 @@
       </div>
     </div>
 
-    <script>
-      const pingStats = {
-        login: [],
-        send: []
-      };
-
-      function updateAverage(endpoint) {
-        const values = pingStats[endpoint];
-        if (values.length === 0) return;
-        const avg = Math.round(values.reduce((a, b) => a + b, 0) / values.length);
-        document.getElementById(`ping-average-${endpoint}`).textContent = `${avg}ms`;
-      }
-
-      const firstPingTime = {
-        login: new Date(),
-        send: new Date()
-      };
-
-      function getTimeString(date) {
-        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      }
-
-      // Afficher l'heure dès le départ
-      document.addEventListener("DOMContentLoaded", () => {
-        document.getElementById("ping-start-login").textContent =
-          "Depuis " + getTimeString(firstPingTime.login);
-        document.getElementById("ping-start-send").textContent =
-          "Depuis " + getTimeString(firstPingTime.send);
-      });
-
-      function addPingHistory(endpoint, success, duration) {
-        const bar = document.getElementById(`ping-history-${endpoint}`);
-
-        const dot = document.createElement("div");
-        dot.classList.add("ping-dot");
-        dot.classList.add(success ? "ping-ok" : "ping-fail");
-        dot.title = success
-          ? `✅ Réponse en ${Math.round(duration)}ms`
-          : `❌ Pas de réponse`;
-
-        bar.appendChild(dot);
-
-        // Supprimer les anciens pings si on dépasse 25
-        if (bar.children.length > 25) {
-          bar.removeChild(bar.children[0]);
-        }
-      }
-
-      async function pingEndpoint(id, url, endpoint) {
-        const cube = document.getElementById(id);
-        const start = performance.now();
-
-        try {
-          const res = await fetch(url, {
-            method: "GET",
-            credentials: "include",
-            headers: { "X-Internal-Ping": "1" }
-          });
-
-          const time = performance.now() - start;
-          const text = await res.text();
-
-          let data = null;
-          try {
-            data = JSON.parse(text);
-          } catch (e) {
-            data = null;
-          }
-
-          const responded = !!data;
-
-          cube.classList.toggle("status-ok", responded);
-          cube.classList.toggle("status-fail", !responded);
-
-          // Ajouter le ping dans tous les cas
-          addPingHistory(endpoint, responded, time);
-
-          if (responded) {
-            pingStats[endpoint].push(time);
-            if (pingStats[endpoint].length > 25) {
-              pingStats[endpoint].shift(); // enlever les anciens
-            }
-            updateAverage(endpoint);
-          }
-
-        } catch (e) {
-          cube.classList.remove("status-ok");
-          cube.classList.add("status-fail");
-          addPingHistory(endpoint, false, 0);
-        }
-      }
-
-
-      function startStatusLoop() {
-        pingEndpoint("status-login", "/api/check_auth.php", "login");
-        pingEndpoint("status-send", "/api/health.php", "send");
-
-        setInterval(() => {
-          pingEndpoint("status-login", "/api/check_auth.php", "login");
-          pingEndpoint("status-send", "/api/health.php", "send");
-        }, 5000);
-      }
-
-      startStatusLoop();
-    </script>
+  </div>
 
 </body>
 

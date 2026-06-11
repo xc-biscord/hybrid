@@ -2,250 +2,683 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Statut API Biscord</title>
+  <title>Statut de l'API — Biscord</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet" />
+  <meta name="theme-color" content="#5865F2">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
+    :root {
+      --brand: #5865f2;
+      --brand-hover: #4752c4;
+      --bg-page: #1e1f22;
+      --bg-card: #313338;
+      --bg-row: #2b2d31;
+      --bg-deep: #232428;
+      --border: #3f4147;
+      --header-primary: #f2f3f5;
+      --text-normal: #dbdee1;
+      --text-muted: #949ba4;
+      --text-label: #b5bac1;
+      --text-link: #00a8fc;
+      --green: #23a55a;
+      --yellow: #f0b232;
+      --red: #f23f43;
+    }
+
+    * { box-sizing: border-box; }
+
     body {
-      background: #0d0d0d;
-      color: white;
-      font-family: 'Montserrat', sans-serif;
-      padding: 2rem;
+      background: var(--bg-page);
+      color: var(--text-normal);
+      font-family: 'Noto Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 2rem 1rem 4rem;
     }
 
-    .status-card {
-      background: #1a1a1a;
-      border-radius: 16px;
-      padding: 2rem;
-      box-shadow: 0 0 20px rgba(0, 188, 212, 0.2);
-      max-width: 1000px;
-      margin: auto;
+    .page {
+      max-width: 880px;
+      margin: 0 auto;
     }
 
-    h1, h2 {
-      text-align: center;
+    /* ------------------------------------------------ entête */
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
     }
 
-    #global-average {
-      text-align: center;
-      color: #ccc;
-      font-size: 1.1rem;
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-badge {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: var(--brand);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+
+    .brand h1 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--header-primary);
+      margin: 0;
+    }
+
+    .brand .brand-sub {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .back-link {
+      color: var(--text-link);
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .back-link:hover { text-decoration: underline; }
+
+    /* ------------------------------------------------ bannière globale */
+    .overall-banner {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      background: #4e5058;
+      margin-bottom: 1.25rem;
+      transition: background-color 0.3s ease;
+    }
+
+    .overall-banner .banner-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.85);
+      flex: none;
+    }
+
+    .overall-banner.ok   { background: var(--green); }
+    .overall-banner.warn { background: #b97f1c; }
+    .overall-banner.fail { background: #a12d2f; }
+
+    /* ------------------------------------------------ résumé + contrôles */
+    .summary-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .summary-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.9rem 1.1rem;
+    }
+
+    .summary-card .summary-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--text-muted);
+      margin-bottom: 0.3rem;
+    }
+
+    .summary-card .summary-value {
+      font-size: 1.3rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: var(--header-primary);
     }
 
     .controls {
       display: flex;
-      justify-content: center;
-      gap: 1rem;
-      margin: 1rem 0;
-    }
-
-    .endpoint-line {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #121212;
-      border: 1px solid #222;
-      border-radius: 10px;
-      padding: 0.8rem 1rem;
-      margin-top: 1rem;
-    }
-
-    .endpoint-info {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .ping-metrics {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .status-cube {
-      width: 22px;
-      height: 22px;
-      border-radius: 6px;
-      background-color: gray;
-      box-shadow: 0 0 5px #444;
-    }
-
-    .status-ok { background-color: #00ff88 !important; box-shadow: 0 0 10px #00ff88; }
-    .status-fail { background-color: #ff0033 !important; box-shadow: 0 0 10px #ff0033; }
-
-    .ping-time-label { font-size: 0.85rem; color: #aaa; }
-    .ping-average { font-weight: bold; font-size: 1.1rem; color: #ccc; }
-
-    .ping-history-bar {
-      display: flex;
+      gap: 0.75rem;
       flex-wrap: wrap;
-      gap: 6px;
-      margin: 0.5rem 0 1rem 0.4rem;
-      padding-left: 0.6rem;
+      margin-bottom: 1.25rem;
     }
 
-    .ping-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 3px;
-    }
-
-    .ping-ok { background-color: #00ff88; }
-    .ping-fail { background-color: #ff0033; }
-
-    .manual-btn {
-      background: #00bcd4;
+    .btn {
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #fff;
+      background: var(--brand);
       border: none;
-      color: white;
-      padding: 0.3rem 0.7rem;
-      border-radius: 6px;
+      border-radius: 4px;
+      padding: 9px 16px;
       cursor: pointer;
-      font-weight: bold;
+      transition: background-color 0.17s ease;
+    }
+
+    .btn:hover { background: var(--brand-hover); }
+
+    .btn.btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-normal);
+    }
+
+    .btn.btn-ghost:hover {
+      background: var(--bg-row);
+      border-color: var(--brand);
+    }
+
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ------------------------------------------------ graphique */
+    .chart-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .chart-card h2 {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--text-label);
+      margin: 0 0 1rem;
+    }
+
+    /* ------------------------------------------------ groupes d'endpoints */
+    .group {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 1.25rem;
+      overflow: hidden;
+    }
+
+    .group-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.85rem 1.25rem;
+      background: var(--bg-deep);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .group-header h2 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--header-primary);
+      margin: 0;
+    }
+
+    .group-count {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .endpoint {
+      padding: 0.8rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .endpoint:last-child { border-bottom: none; }
+
+    .endpoint-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 0.55rem;
+    }
+
+    .endpoint-name {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      min-width: 0;
+    }
+
+    .endpoint-name code {
+      font-family: 'SF Mono', Consolas, 'Liberation Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--text-normal);
+      overflow-wrap: anywhere;
+    }
+
+    .method-badge {
+      flex: none;
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      color: #c7d0ff;
+      background: rgba(88, 101, 242, 0.18);
+      border: 1px solid rgba(88, 101, 242, 0.45);
+      border-radius: 4px;
+      padding: 2px 6px;
+    }
+
+    .endpoint-metrics {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      flex: none;
+    }
+
+    .ping-average {
+      font-size: 0.82rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-muted);
+      min-width: 56px;
+      text-align: right;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      transition: background-color 0.3s ease;
+    }
+
+    .status-dot.ok   { background: var(--green); box-shadow: 0 0 6px rgba(35, 165, 90, 0.7); }
+    .status-dot.fail { background: var(--red);   box-shadow: 0 0 6px rgba(242, 63, 67, 0.7); }
+
+    .ping-btn {
+      font-family: inherit;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-label);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 4px 10px;
+      cursor: pointer;
+      transition: border-color 0.17s ease, color 0.17s ease;
+    }
+
+    .ping-btn:hover {
+      border-color: var(--brand);
+      color: #fff;
+    }
+
+    .uptime-bar {
+      display: flex;
+      gap: 3px;
+    }
+
+    .uptime-bar .tick {
+      flex: 1 1 0;
+      height: 14px;
+      border-radius: 2px;
+      background: var(--border);
+    }
+
+    .uptime-bar .tick-ok   { background: var(--green); }
+    .uptime-bar .tick-fail { background: var(--red); }
+
+    .page-footer {
+      margin-top: 1.5rem;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-muted);
     }
   </style>
   <link rel="stylesheet" href="styles/test-environment.css?v=2">
   <script src="test-environment.js?v=2" defer></script>
 </head>
 <body>
-  <div class="status-card">
-    <h1>📡 Santé des endpoints API</h1>
-    <p id="global-average">⏱ Moyenne générale : --ms</p>
-    <div class="controls">
-      <button id="togglePing" class="manual-btn">🔁 Stopper le ping auto</button>
+  <div class="page">
+
+    <header class="page-header">
+      <div class="brand">
+        <div class="brand-badge" aria-hidden="true">📡</div>
+        <h1>
+          Statut de l'API Biscord
+          <span class="brand-sub">biscord-api-stg-helsi // Helsinki, Finlande</span>
+        </h1>
+      </div>
+      <a class="back-link" href="/index.html">← Retour à la connexion</a>
+    </header>
+
+    <div id="overall-banner" class="overall-banner">
+      <span class="banner-dot" aria-hidden="true"></span>
+      <span id="overall-banner-text">Premier cycle de vérification en cours…</span>
     </div>
-    <canvas id="latencyChart" height="100"></canvas>
+
+    <div class="summary-row">
+      <div class="summary-card">
+        <div class="summary-label">Endpoints opérationnels</div>
+        <div class="summary-value" id="summary-up">– / –</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">Latence moyenne</div>
+        <div class="summary-value" id="summary-avg">– ms</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">Dernière vérification</div>
+        <div class="summary-value" id="summary-last">–</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button id="togglePing" class="btn">⏸ Suspendre le ping auto</button>
+      <button id="pingNow" class="btn btn-ghost">Tout pinger maintenant</button>
+    </div>
+
+    <div class="chart-card">
+      <h2>Latence moyenne de l'API (par cycle)</h2>
+      <canvas id="latencyChart" height="90"></canvas>
+    </div>
+
     <div id="status-container"></div>
+
+    <p class="page-footer">
+      Chaque endpoint est appelé avec une charge factice : aucune donnée n'est créée ni modifiée.
+      Vérification automatique toutes les 10 secondes.
+    </p>
   </div>
 
   <script>
     const API_BASE = "/api/";
-    const ENDPOINTS = [
-      "login.php", "send_message.php", "register.php",
-      "check_auth.php", "get_profile.php", "update_profile.php",
-      "update_account.php", "get_channels.php", "get_messages.php",
-      "get_server_name.php", "get_servers.php", "get_user_profile.php",
-      "get_users_in_server.php", "create_channel.php", "create_server.php",
-      "create_invite.php", "accept_invite.php"
+    const MAX_PINGS = 30;
+    const CYCLE_MS = 10000;
+
+    const ENDPOINT_GROUPS = [
+      {
+        name: "🔐 Authentification & session",
+        endpoints: ["login.php", "register.php", "check_auth.php", "auth.php"],
+      },
+      {
+        name: "👤 Profils & comptes",
+        endpoints: ["get_profile.php", "get_user_profile.php", "update_profile.php", "update_account.php"],
+      },
+      {
+        name: "🗂 Serveurs & salons",
+        endpoints: ["get_servers.php", "get_server_name.php", "create_server.php", "get_channels.php", "create_channel.php", "get_users_in_server.php"],
+      },
+      {
+        name: "💬 Messages",
+        endpoints: ["get_messages.php", "send_message.php", "delete_message.php"],
+      },
+      {
+        name: "📨 Messages privés",
+        endpoints: ["start_dm.php", "get_dm_messages.php", "send_dm.php", "get_dm_notifications.php"],
+      },
+      {
+        name: "✉️ Invitations",
+        endpoints: ["create_invite.php", "accept_invite.php"],
+      },
+      {
+        name: "🛡 Modération & administration",
+        endpoints: ["get_my_server_role.php", "set_member_role.php", "kick_member.php", "get_all_users.php", "get_user_servers.php", "ban_user.php"],
+      },
+      {
+        name: "⚙️ Système",
+        endpoints: ["health.php"],
+      },
     ];
 
+    const ALL_ENDPOINTS = ENDPOINT_GROUPS.flatMap((g) => g.endpoints);
     const pingStats = {};
-    const MAX_PINGS = 25;
     let autoPing = true;
+    let cycleRunning = false;
 
+    // ------------------------------------------------ graphique
     const ctx = document.getElementById("latencyChart").getContext("2d");
-    const chartData = {
-      labels: [],
-      datasets: [{ label: "Moyenne API", data: [], borderColor: '#00cfff', fill: false }]
-    };
     const latencyChart = new Chart(ctx, {
-      type: 'line',
-      data: chartData,
+      type: "line",
+      data: {
+        labels: [],
+        datasets: [{
+          label: "Latence moyenne",
+          data: [],
+          borderColor: "#5865f2",
+          backgroundColor: "rgba(88, 101, 242, 0.15)",
+          fill: true,
+          tension: 0.35,
+          pointRadius: 2.5,
+          pointBackgroundColor: "#5865f2",
+        }],
+      },
       options: {
         responsive: true,
         plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true } }
-      }
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: "#3f4147" },
+            ticks: { color: "#949ba4", callback: (v) => v + " ms" },
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: "#949ba4", maxTicksLimit: 8 },
+          },
+        },
+      },
     });
 
-    document.getElementById("togglePing").onclick = () => {
-      autoPing = !autoPing;
-      document.getElementById("togglePing").textContent = autoPing ? "🔁 Stopper le ping auto" : "▶️ Relancer le ping auto";
-    };
+    // ------------------------------------------------ construction de l'UI
+    function buildEndpointRow(container, ep) {
+      pingStats[ep] = { times: [], lastOk: null };
 
-    function getTimeString(date) {
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const row = document.createElement("div");
+      row.className = "endpoint";
+
+      const top = document.createElement("div");
+      top.className = "endpoint-top";
+
+      const name = document.createElement("div");
+      name.className = "endpoint-name";
+      const badge = document.createElement("span");
+      badge.className = "method-badge";
+      badge.textContent = "POST";
+      const code = document.createElement("code");
+      code.textContent = "/api/" + ep;
+      name.append(badge, code);
+
+      const metrics = document.createElement("div");
+      metrics.className = "endpoint-metrics";
+
+      const btn = document.createElement("button");
+      btn.className = "ping-btn";
+      btn.type = "button";
+      btn.textContent = "Ping";
+      btn.addEventListener("click", () => pingEndpoint(ep).then(refreshSummary));
+
+      const avg = document.createElement("span");
+      avg.className = "ping-average";
+      avg.id = "ping-average-" + ep;
+      avg.textContent = "-- ms";
+
+      const dot = document.createElement("span");
+      dot.className = "status-dot";
+      dot.id = "status-" + ep;
+
+      metrics.append(btn, avg, dot);
+      top.append(name, metrics);
+
+      const bar = document.createElement("div");
+      bar.className = "uptime-bar";
+      bar.id = "ping-history-" + ep;
+      for (let i = 0; i < MAX_PINGS; i++) {
+        const tick = document.createElement("div");
+        tick.className = "tick";
+        bar.appendChild(tick);
+      }
+
+      row.append(top, bar);
+      container.appendChild(row);
     }
 
-    function updateGlobalAverage() {
-      let total = 0, count = 0;
-      for (const ep in pingStats) {
-        const arr = pingStats[ep].times;
-        total += arr.reduce((a, b) => a + b, 0);
-        count += arr.length;
-      }
-      const avg = count ? Math.round(total / count) : '--';
-      document.getElementById("global-average").textContent = `⏱ Moyenne générale : ${avg}ms`;
+    function buildUI() {
+      const root = document.getElementById("status-container");
 
-      const now = new Date().toLocaleTimeString();
-      chartData.labels.push(now);
-      chartData.datasets[0].data.push(avg);
-      if (chartData.labels.length > 20) {
-        chartData.labels.shift();
-        chartData.datasets[0].data.shift();
-      }
-      latencyChart.update();
+      ENDPOINT_GROUPS.forEach((group) => {
+        const section = document.createElement("section");
+        section.className = "group";
+
+        const header = document.createElement("div");
+        header.className = "group-header";
+        const title = document.createElement("h2");
+        title.textContent = group.name;
+        const count = document.createElement("span");
+        count.className = "group-count";
+        count.textContent = group.endpoints.length + " endpoint" + (group.endpoints.length > 1 ? "s" : "");
+        header.append(title, count);
+        section.appendChild(header);
+
+        group.endpoints.forEach((ep) => buildEndpointRow(section, ep));
+        root.appendChild(section);
+      });
     }
 
-    function addPingHistory(ep, success, duration) {
-      const bar = document.getElementById(`ping-history-${ep}`);
-      const dot = document.createElement("div");
-      dot.className = `ping-dot ${success ? 'ping-ok' : 'ping-fail'}`;
-      dot.title = success ? `${Math.round(duration)}ms` : 'Erreur';
-      bar.appendChild(dot);
-      if (bar.children.length > MAX_PINGS) bar.removeChild(bar.firstChild);
+    // ------------------------------------------------ pings
+    function pushTick(ep, success, duration) {
+      const bar = document.getElementById("ping-history-" + ep);
+      const tick = document.createElement("div");
+      tick.className = "tick " + (success ? "tick-ok" : "tick-fail");
+      tick.title = success ? Math.round(duration) + " ms" : "Pas de réponse";
+      bar.appendChild(tick);
+      while (bar.children.length > MAX_PINGS) bar.removeChild(bar.firstChild);
     }
 
     async function pingEndpoint(ep) {
-      const cube = document.getElementById(`status-${ep}`);
-      const avgSpan = document.getElementById(`ping-average-${ep}`);
+      const dot = document.getElementById("status-" + ep);
+      const avgSpan = document.getElementById("ping-average-" + ep);
       const start = performance.now();
+      let ok = false;
+      let time = 0;
+
       try {
         const res = await fetch(API_BASE + ep, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ dummy: true })
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "X-Internal-Ping": "1",
+          },
+          body: JSON.stringify({ ping: true }),
         });
-        const time = performance.now() - start;
-        const text = await res.text();
-        let data;
-        try { data = JSON.parse(text); } catch { data = null; }
-
-        const ok = !!data;
-        cube.classList.toggle("status-ok", ok);
-        cube.classList.toggle("status-fail", !ok);
-        if (ok) {
-          pingStats[ep].times.push(time);
-          if (pingStats[ep].times.length > MAX_PINGS) pingStats[ep].times.shift();
-          avgSpan.textContent = `${Math.round(pingStats[ep].times.reduce((a,b) => a+b, 0) / pingStats[ep].times.length)}ms`;
-        }
-        addPingHistory(ep, ok, time);
-        updateGlobalAverage();
+        time = performance.now() - start;
+        await res.json();
+        // « Opérationnel » = l'endpoint répond avec du JSON, quel que soit le code HTTP.
+        ok = true;
       } catch {
-        cube.classList.remove("status-ok");
-        cube.classList.add("status-fail");
-        addPingHistory(ep, false, 0);
+        ok = false;
+      }
+
+      dot.classList.toggle("ok", ok);
+      dot.classList.toggle("fail", !ok);
+      pushTick(ep, ok, time);
+
+      const stats = pingStats[ep];
+      stats.lastOk = ok;
+      if (ok) {
+        stats.times.push(time);
+        if (stats.times.length > MAX_PINGS) stats.times.shift();
+        const avg = Math.round(stats.times.reduce((a, b) => a + b, 0) / stats.times.length);
+        avgSpan.textContent = avg + " ms";
       }
     }
 
-    function buildUI(ep) {
-      const now = new Date();
-      pingStats[ep] = { times: [], startedAt: now };
-      const html = `
-        <div class="endpoint-line">
-          <div class="endpoint-info">
-            <strong>📁 ${ep}</strong>
-            <div class="ping-time-label">Depuis ${getTimeString(now)}</div>
-          </div>
-          <div class="ping-metrics">
-            <button class="manual-btn" onclick="pingEndpoint('${ep}')">Ping</button>
-            <span id="ping-average-${ep}" class="ping-average">--ms</span>
-            <div id="status-${ep}" class="status-cube"></div>
-          </div>
-        </div>
-        <div id="ping-history-${ep}" class="ping-history-bar"></div>
-      `;
-      document.getElementById("status-container").insertAdjacentHTML("beforeend", html);
+    // ------------------------------------------------ synthèse
+    function refreshSummary() {
+      const checked = ALL_ENDPOINTS.filter((ep) => pingStats[ep].lastOk !== null);
+      const up = checked.filter((ep) => pingStats[ep].lastOk).length;
+
+      document.getElementById("summary-up").textContent = up + " / " + ALL_ENDPOINTS.length;
+      document.getElementById("summary-last").textContent =
+        new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+
+      let total = 0;
+      let count = 0;
+      ALL_ENDPOINTS.forEach((ep) => {
+        pingStats[ep].times.forEach((t) => { total += t; count++; });
+      });
+      const globalAvg = count ? Math.round(total / count) : null;
+      document.getElementById("summary-avg").textContent = globalAvg === null ? "– ms" : globalAvg + " ms";
+
+      const banner = document.getElementById("overall-banner");
+      const text = document.getElementById("overall-banner-text");
+      banner.classList.remove("ok", "warn", "fail");
+
+      if (checked.length === 0) {
+        text.textContent = "Premier cycle de vérification en cours…";
+      } else if (up === checked.length) {
+        banner.classList.add("ok");
+        text.textContent = "Tous les systèmes sont opérationnels";
+      } else if (up > 0) {
+        banner.classList.add("warn");
+        text.textContent = "Dégradation partielle — " + up + " / " + checked.length + " endpoints répondent";
+      } else {
+        banner.classList.add("fail");
+        text.textContent = "Panne majeure — aucun endpoint ne répond";
+      }
+
+      return globalAvg;
     }
 
-    function startLoop() {
-      setInterval(() => {
-        if (!autoPing) return;
-        ENDPOINTS.forEach(pingEndpoint);
-      }, 10000);
+    async function runCycle() {
+      if (cycleRunning) return;
+      cycleRunning = true;
+      const pingNowBtn = document.getElementById("pingNow");
+      pingNowBtn.disabled = true;
+
+      // Pings séquentiels : mesures plus fiables et pas de rafale sur le serveur.
+      for (const ep of ALL_ENDPOINTS) {
+        await pingEndpoint(ep);
+      }
+
+      const globalAvg = refreshSummary();
+
+      if (globalAvg !== null) {
+        const data = latencyChart.data;
+        data.labels.push(new Date().toLocaleTimeString());
+        data.datasets[0].data.push(globalAvg);
+        if (data.labels.length > 20) {
+          data.labels.shift();
+          data.datasets[0].data.shift();
+        }
+        latencyChart.update();
+      }
+
+      pingNowBtn.disabled = false;
+      cycleRunning = false;
     }
 
-    ENDPOINTS.forEach(buildUI);
-    startLoop();
+    // ------------------------------------------------ contrôles
+    document.getElementById("togglePing").addEventListener("click", (e) => {
+      autoPing = !autoPing;
+      e.target.textContent = autoPing ? "⏸ Suspendre le ping auto" : "▶️ Relancer le ping auto";
+    });
+
+    document.getElementById("pingNow").addEventListener("click", runCycle);
+
+    buildUI();
+    runCycle();
+    setInterval(() => {
+      if (autoPing) runCycle();
+    }, CYCLE_MS);
   </script>
 </body>
 </html>

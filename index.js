@@ -1,57 +1,52 @@
 document.addEventListener("DOMContentLoaded", () => {
   const API_BASE = "/api";
 
-  const welcomeScreen = document.getElementById("welcome-screen");
   const formInscription = document.getElementById("form-inscription");
   const formConnexion = document.getElementById("form-connexion");
   const connectedBlock = document.getElementById("connected-user-message");
   const connectedUsername = document.getElementById("connected-username");
-  const loader = document.getElementById("loader");
   const passwordInput = document.getElementById("mdp");
   const strengthBar = document.querySelector(".strength-bar");
 
-  // 🔐 Détection utilisateur connecté
+  // ------------------------------------------------------------------
+  // Détection utilisateur connecté
+  // ------------------------------------------------------------------
   fetch(`${API_BASE}/check_auth.php`, { credentials: "include" })
-    .then(res => res.json())
-    .then(data => {
+    .then((res) => res.json())
+    .then((data) => {
       if (data.logged_in) {
-        connectedUsername.textContent = data.username;
+        connectedUsername.textContent = data.username || "toi";
+        formConnexion.classList.add("hidden");
+        formInscription.classList.add("hidden");
         connectedBlock.classList.remove("hidden");
-        welcomeScreen.classList.add("hidden");
-      } else {
-        welcomeScreen.classList.remove("hidden");
       }
+    })
+    .catch(() => {
+      /* L'API est injoignable : on laisse le formulaire de connexion affiché. */
     });
 
-  // Toast custom
-  function showToast(title, message, duration = 3000) {
-    const wrapper = document.getElementById("biscord-toast");
-    const titleEl = document.getElementById("toast-title");
-    const textEl = document.getElementById("toast-text");
+  // ------------------------------------------------------------------
+  // Toast
+  // ------------------------------------------------------------------
+  let toastTimer = null;
 
-    titleEl.textContent = title;
-    textEl.textContent = message;
+  function showToast(title, message, type = "info", duration = 3500) {
+    const wrapper = document.getElementById("biscord-toast");
+    document.getElementById("toast-title").textContent = title;
+    document.getElementById("toast-text").textContent = message;
+
+    wrapper.classList.remove("toast-error", "toast-success");
+    if (type === "error") wrapper.classList.add("toast-error");
+    if (type === "success") wrapper.classList.add("toast-success");
 
     wrapper.classList.remove("hidden");
-
-    setTimeout(() => {
-      wrapper.classList.add("hidden");
-    }, duration);
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => wrapper.classList.add("hidden"), duration);
   }
 
-  // Barre de force du mot de passe
-  passwordInput.addEventListener("input", () => {
-    const value = passwordInput.value;
-    const strength = getPasswordStrength(value); // 0 à 100
-
-    strengthBar.style.width = strength + "%";
-
-    if (strength < 30) strengthBar.style.background = "red";
-    else if (strength < 60) strengthBar.style.background = "orange";
-    else if (strength < 80) strengthBar.style.background = "yellowgreen";
-    else strengthBar.style.background = "#00cfff";
-  });
-
+  // ------------------------------------------------------------------
+  // Force du mot de passe
+  // ------------------------------------------------------------------
   function getPasswordStrength(pwd) {
     let strength = 0;
     if (pwd.length >= 8) strength += 30;
@@ -62,83 +57,115 @@ document.addEventListener("DOMContentLoaded", () => {
     return Math.min(strength, 100);
   }
 
-  // Animation de formulaires
-  window.afficherFormulaire = function (type) {
-    welcomeScreen.classList.add("fade-out");
-    setTimeout(() => {
-      welcomeScreen.classList.add("hidden");
-      formInscription.classList.add("hidden");
-      formConnexion.classList.add("hidden");
+  passwordInput.addEventListener("input", () => {
+    const strength = getPasswordStrength(passwordInput.value);
+    strengthBar.style.width = strength + "%";
 
-      const formToShow = type === "inscription" ? formInscription : formConnexion;
-      formToShow.classList.remove("hidden");
-      formToShow.classList.add("fade-in");
-    }, 300);
-  };
+    if (strength < 30) strengthBar.style.background = "#f23f43";
+    else if (strength < 60) strengthBar.style.background = "#f0b232";
+    else if (strength < 80) strengthBar.style.background = "#23a55a";
+    else strengthBar.style.background = "#00a8fc";
+  });
 
+  // ------------------------------------------------------------------
+  // Bascule connexion <-> inscription
+  // ------------------------------------------------------------------
   window.echangerFormulaire = function () {
-    if (!formInscription.classList.contains("hidden")) {
-      formInscription.classList.add("hidden");
-      formConnexion.classList.remove("hidden");
-    } else {
+    if (formInscription.classList.contains("hidden")) {
       formConnexion.classList.add("hidden");
       formInscription.classList.remove("hidden");
+    } else {
+      formInscription.classList.add("hidden");
+      formConnexion.classList.remove("hidden");
     }
   };
 
-  // Formulaire inscription
+  function setSubmitting(form, isSubmitting, loadingLabel) {
+    const submit = form.querySelector('input[type="submit"]');
+    if (!submit) return;
+    if (isSubmitting) {
+      submit.dataset.label = submit.value;
+      submit.value = loadingLabel;
+      submit.disabled = true;
+    } else {
+      submit.value = submit.dataset.label || submit.value;
+      submit.disabled = false;
+    }
+  }
+
+  // ------------------------------------------------------------------
+  // Inscription
+  // ------------------------------------------------------------------
   formInscription.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const username = document.getElementById("username").value;
-    const email = document.getElementById("email").value;
+    const username = document.getElementById("username").value.trim();
+    const email = document.getElementById("email").value.trim();
     const password = document.getElementById("mdp").value;
     const confirmation = document.getElementById("confirmation").value;
 
+    if (!username || !email || !password) {
+      showToast("Champs manquants", "Remplis tous les champs obligatoires.", "error");
+      return;
+    }
+
     if (getPasswordStrength(password) < 60) {
-      showToast("Mot de passe faible", "Choisis un mot de passe plus fort !");
+      showToast("Mot de passe faible", "Choisis un mot de passe plus fort !", "error");
       return;
     }
 
     if (password !== confirmation) {
-      showToast("Erreur", "Les mots de passe ne correspondent pas.");
+      showToast("Erreur", "Les mots de passe ne correspondent pas.", "error");
       return;
     }
 
-    loader.classList.remove("hidden");
+    setSubmitting(formInscription, true, "Création du compte…");
 
-    const res = await fetch(`${API_BASE}/register.php`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ username, email, password }),
-    });
-
-    const text = await res.text();
-    let data;
     try {
-      data = JSON.parse(text);
-    } catch (e) {
-      showToast("Erreur", "Réponse invalide du serveur.");
-      return;
-    }
+      const res = await fetch(`${API_BASE}/register.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ username, email, password }),
+      });
 
-    if (data.success) {
-      showToast("✅ Inscription réussie !", "Redirection en cours...");
-      setTimeout(() => {
-        window.location.href = "/accueil.html";
-      }, 2000);
-    } else {
-      loader.classList.add("hidden");
-      showToast("Erreur", data.error || "Inscription impossible.");
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        showToast("Erreur", "Réponse invalide du serveur.", "error");
+        return;
+      }
+
+      if (data.success) {
+        showToast("Inscription réussie !", "Redirection en cours…", "success");
+        setTimeout(() => {
+          window.location.href = "/accueil.html";
+        }, 1500);
+      } else {
+        showToast("Erreur", data.error || "Inscription impossible.", "error");
+      }
+    } catch {
+      showToast("Erreur réseau", "Impossible de joindre l'API.", "error");
+    } finally {
+      setSubmitting(formInscription, false);
     }
   });
 
-  // Formulaire connexion
+  // ------------------------------------------------------------------
+  // Connexion
+  // ------------------------------------------------------------------
   formConnexion.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const username = document.getElementById("identifiant").value;
+    const username = document.getElementById("identifiant").value.trim();
     const password = document.getElementById("mdp-connexion").value;
+
+    if (!username || !password) {
+      showToast("Champs manquants", "Identifiant et mot de passe sont obligatoires.", "error");
+      return;
+    }
+
+    setSubmitting(formConnexion, true, "Connexion…");
 
     try {
       const res = await fetch(`${API_BASE}/login.php`, {
@@ -148,25 +175,134 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({ username, password }),
       });
 
-      const text = await res.text();
       let data;
       try {
-        data = JSON.parse(text);
+        data = await res.json();
       } catch {
-        showToast("Erreur", "Réponse du serveur invalide.");
+        showToast("Erreur", "Réponse du serveur invalide.", "error");
         return;
       }
 
       if (data.success) {
-        showToast("✅ Connexion réussie !", "Redirection en cours...");
+        showToast("Connexion réussie !", "Redirection en cours…", "success");
         setTimeout(() => {
           window.location.href = "/accueil.html";
-        }, 1500);
+        }, 1200);
       } else {
-        showToast("Erreur", data.error || "Échec de la connexion.");
+        showToast("Erreur", data.error || "Échec de la connexion.", "error");
       }
     } catch {
-      showToast("Erreur réseau", "Impossible de joindre l'API. Vérifie l'URL ou la configuration CORS.");
+      showToast("Erreur réseau", "Impossible de joindre l'API.", "error");
+    } finally {
+      setSubmitting(formConnexion, false);
     }
   });
+
+  // ------------------------------------------------------------------
+  // État des services (carte de statut)
+  // ------------------------------------------------------------------
+  const SERVICES = [
+    { key: "login", url: `${API_BASE}/check_auth.php` },
+    { key: "send", url: `${API_BASE}/health.php` },
+  ];
+  const MAX_TICKS = 30;
+  const pingStats = { login: [], send: [] };
+  const lastStatus = { login: null, send: null };
+
+  function getTimeString(date) {
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  }
+
+  // Pré-remplit chaque barre avec des segments neutres pour une largeur stable.
+  SERVICES.forEach(({ key }) => {
+    const bar = document.getElementById(`ping-history-${key}`);
+    for (let i = 0; i < MAX_TICKS; i++) {
+      const tick = document.createElement("div");
+      tick.className = "tick";
+      bar.appendChild(tick);
+    }
+    document.getElementById(`ping-start-${key}`).textContent =
+      "Surveillé depuis " + getTimeString(new Date());
+  });
+
+  function pushTick(key, success, duration) {
+    const bar = document.getElementById(`ping-history-${key}`);
+    const tick = document.createElement("div");
+    tick.className = `tick ${success ? "tick-ok" : "tick-fail"}`;
+    tick.title = success ? `Réponse en ${Math.round(duration)} ms` : "Pas de réponse";
+    bar.appendChild(tick);
+    while (bar.children.length > MAX_TICKS) {
+      bar.removeChild(bar.firstChild);
+    }
+  }
+
+  function updateAverage(key) {
+    const values = pingStats[key];
+    if (!values.length) return;
+    const avg = Math.round(values.reduce((a, b) => a + b, 0) / values.length);
+    document.getElementById(`ping-average-${key}`).textContent = `${avg} ms`;
+  }
+
+  function updateOverallPill() {
+    const pill = document.getElementById("overall-status");
+    const text = document.getElementById("overall-status-text");
+    const states = Object.values(lastStatus);
+
+    pill.classList.remove("pill-ok", "pill-warn", "pill-fail");
+
+    if (states.some((s) => s === null)) {
+      text.textContent = "Vérification…";
+      return;
+    }
+    if (states.every(Boolean)) {
+      pill.classList.add("pill-ok");
+      text.textContent = "Tous les services opérationnels";
+    } else if (states.some(Boolean)) {
+      pill.classList.add("pill-warn");
+      text.textContent = "Service partiellement dégradé";
+    } else {
+      pill.classList.add("pill-fail");
+      text.textContent = "Panne en cours";
+    }
+  }
+
+  async function pingService({ key, url }) {
+    const dot = document.getElementById(`status-${key}`);
+    const start = performance.now();
+    let responded = false;
+    let time = 0;
+
+    try {
+      const res = await fetch(url, {
+        method: "GET",
+        credentials: "include",
+        headers: { "X-Internal-Ping": "1" },
+      });
+      time = performance.now() - start;
+      await res.json();
+      responded = true;
+    } catch {
+      responded = false;
+    }
+
+    dot.classList.toggle("status-ok", responded);
+    dot.classList.toggle("status-fail", !responded);
+    pushTick(key, responded, time);
+
+    if (responded) {
+      pingStats[key].push(time);
+      if (pingStats[key].length > MAX_TICKS) pingStats[key].shift();
+      updateAverage(key);
+    }
+
+    lastStatus[key] = responded;
+    updateOverallPill();
+  }
+
+  function pingAllServices() {
+    SERVICES.forEach(pingService);
+  }
+
+  pingAllServices();
+  setInterval(pingAllServices, 5000);
 });

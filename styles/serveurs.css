@@ -1,100 +1,164 @@
-html, body {
-    background-color: #0e0e0e;
-    color: #ffffff;
-    font-family: 'Montserrat', sans-serif;
-    margin: 0;
-    padding: 0;
-    height: 100%;
-  }
-  
+/* ============================================================
+   Biscord — Sélection des serveurs — thème façon Discord
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* Palette Discord */
+  --brand: #5865f2;
+  --brand-hover: #4752c4;
+  --brand-active: #3c45a5;
+  --bg-page: #1e1f22;
+  --bg-card: #313338;
+  --bg-input: #1e1f22;
+  --bg-secondary: #2b2d31;
+  --border: #3f4147;
+  --header-primary: #f2f3f5;
+  --text-normal: #dbdee1;
+  --text-muted: #949ba4;
+  --text-label: #b5bac1;
+  --text-link: #00a8fc;
+  --radius-card: 8px;
+  --radius-input: 4px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background-color: var(--bg-page);
+  color: var(--text-normal);
+  font-family: 'Noto Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  line-height: 1.5;
+}
+
+.main-container {
+  max-width: 660px;
+  margin: 60px auto;
+  padding: 2rem;
+  background-color: var(--bg-card);
+  border-radius: var(--radius-card);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  text-align: center;
+}
+
+h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--header-primary);
+  margin: 0 0 0.5rem;
+}
+
+.highlight {
+  color: var(--brand);
+  font-weight: 800;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: var(--text-label);
+  margin: 0 0 1.5rem;
+}
+
+.server-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 2rem;
+}
+
+.server-entry {
+  padding: 12px 16px;
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-input);
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text-normal);
+  transition: background-color 0.15s ease, color 0.15s ease;
+  text-align: left;
+}
+
+.server-entry:hover {
+  background-color: #404249;
+  color: var(--header-primary);
+}
+
+.create-server-box {
+  border-top: 1px solid var(--border);
+  padding-top: 1.5rem;
+}
+
+.create-server-box h2 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--text-label);
+  margin: 0 0 1rem;
+}
+
+#create-server-form {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+#create-server-form input {
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 10px;
+  border-radius: var(--radius-input);
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  background-color: var(--bg-input);
+  color: var(--text-normal);
+  width: 250px;
+  transition: border-color 0.2s ease;
+}
+
+#create-server-form input::placeholder {
+  color: var(--text-muted);
+}
+
+#create-server-form input:focus {
+  outline: none;
+  border-color: var(--text-link);
+}
+
+#create-server-form button {
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 10px 20px;
+  border: none;
+  border-radius: var(--radius-input);
+  background-color: var(--brand);
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.17s ease;
+}
+
+#create-server-form button:hover {
+  background-color: var(--brand-hover);
+}
+
+#create-server-form button:active {
+  background-color: var(--brand-active);
+}
+
+.no-server {
+  color: var(--text-muted);
+}
+
+@media (max-width: 540px) {
   .main-container {
-    max-width: 700px;
-    margin: 60px auto;
-    padding: 30px;
-    background-color: #181818;
-    border-radius: 16px;
-    box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
-    text-align: center;
+    margin: 20px 1rem;
+    padding: 1.5rem 1.25rem;
   }
-  
-  h1 {
-    font-size: 2.2em;
-    margin-bottom: 10px;
-  }
-  
-  .highlight {
-    color: #00cfff;
-  }
-  
-  .subtitle {
-    font-size: 1.1em;
-    color: #ccc;
-    margin-bottom: 30px;
-  }
-  
-  .server-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 40px;
-  }
-  
-  .server-entry {
-    padding: 12px 20px;
-    background-color: #222;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.2s;
-    text-align: left;
-  }
-  
-  .server-entry:hover {
-    background-color: #2a2a2a;
-    transform: scale(1.02);
-    box-shadow: 0 0 10px rgba(0, 191, 255, 0.3);
-  }
-  
-  .create-server-box {
-    border-top: 1px solid #333;
-    padding-top: 30px;
-  }
-  
-  .create-server-box h2 {
-    margin-bottom: 15px;
-  }
-  
-  #create-server-form {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-  
-  #create-server-form input {
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
-    background-color: #1e1e1e;
-    color: white;
-    width: 250px;
-  }
-  
-  #create-server-form button {
-    padding: 10px 16px;
-    border: none;
-    border-radius: 8px;
-    background: linear-gradient(145deg, #00c6ff, #0072ff);
-    color: white;
-    cursor: pointer;
-    transition: background 0.3s, transform 0.2s;
-  }
-  
-  #create-server-form button:hover {
-    transform: scale(1.05);
-    background: linear-gradient(145deg, #00b3e6, #005ccc);
-  }
-  
-  .no-server {
-    color: #888;
-  }
-  
+}
