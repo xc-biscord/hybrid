@@ -35,5 +35,8 @@
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
+        <!-- Contract tests hit MySQL (biscord_db_tests), not the SQLite in-memory DB above -->
+        <env name="CONTRACT_TEST_BASE_URL" value="http://127.0.0.1:8000"/>
+        <env name="CONTRACT_TEST_DB_DATABASE" value="biscord_db_tests"/>
     </php>
 </phpunit>
