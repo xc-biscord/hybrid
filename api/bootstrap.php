@@ -2,8 +2,6 @@
 
 require_once __DIR__ . '/../config/config.php';
 
-use App\Support\ApiKernel;
-
 header('Content-Type: application/json; charset=utf-8');
 
 function jsonResponse(array $payload, int $statusCode = 200): void
@@ -50,11 +48,4 @@ function requireAuthUserId(): int
     }
 
     return (int) $_SESSION['user_id'];
-}
-
-function apiKernel(): ApiKernel
-{
-    global $pdo;
-
-    return new ApiKernel($pdo);
 }
