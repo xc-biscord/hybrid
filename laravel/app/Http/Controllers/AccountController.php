@@ -26,7 +26,7 @@ final class AccountController extends Controller
         $data = $this->validator->normalize($payload);
 
         if (!$this->validator->hasAnyUpdatableField($data)) {
-            return response()->json([
+            return new JsonResponse([
                 'success' => false,
                 'error' => 'Aucune donnée à mettre à jour',
             ], 200);
@@ -35,16 +35,25 @@ final class AccountController extends Controller
         try {
             $this->accountService->updateAccount($userId, $data);
 
-            return response()->json([
+            return new JsonResponse([
                 'success' => true,
             ], 200);
         } catch (DomainException $e) {
-            return response()->json([
+            return new JsonResponse([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], 200);
         } catch (PDOException $e) {
-            return response()->json([
+            $isDuplicate = ($e->errorInfo[1] ?? null) === 1062;
+
+            if ($isDuplicate) {
+                return new JsonResponse([
+                    'success' => false,
+                    'error' => "Nom d'utilisateur ou email déjà utilisé",
+                ], 200);
+            }
+
+            return new JsonResponse([
                 'success' => false,
                 'error' => 'Erreur SQL',
                 'debug' => $e->getMessage(),
