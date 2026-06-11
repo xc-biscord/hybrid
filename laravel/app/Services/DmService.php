@@ -48,6 +48,10 @@ final class DmService
 
         $conversation = $this->dmRepository->findConversationForUser($conversationId, $userId);
         if ($conversation === null) {
+            if (!$this->dmRepository->conversationExists($conversationId)) {
+                throw new DomainException('Conversation introuvable', 404);
+            }
+
             throw new DomainException('Accès refusé', 403);
         }
 
