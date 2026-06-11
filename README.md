@@ -40,10 +40,10 @@ Configure database credentials for the target environment in the existing PHP an
 
 ## Run Locally
 
-From the project root, the public legacy-compatible entrypoints can be served with PHP's built-in server:
+From the project root, the public legacy-compatible entrypoints can be served with PHP's built-in server. The `router.php` script forwards the historical `/api/*.php` URLs to the Laravel runtime (the legacy `api/*.php` wrappers no longer exist):
 
 ```bash
-php -S 127.0.0.1:8000 -t .
+php -S 127.0.0.1:8000 -t . router.php
 ```
 
 The application is then available at:
