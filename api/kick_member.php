@@ -1,9 +1,10 @@
 <?php
 
 require_once __DIR__ . '/bootstrap.php';
+require_once __DIR__ . '/laravel_proxy.php';
 
 $userId = requireAuthUserId();
 $data = getJsonInput();
 
-$controller = apiKernel()->roleModerationController();
-respondFromController($controller->kickMember($userId, $data));
+$controller = laravelMake(\App\Http\Controllers\RoleModerationController::class);
+respondFromJsonResponse($controller->kickMember($userId, $data));
