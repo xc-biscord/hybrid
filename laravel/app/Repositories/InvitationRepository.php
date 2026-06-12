@@ -25,6 +25,29 @@ final class InvitationRepository
         return (int) $serverId;
     }
 
+    /**
+     * @return array{server_id:mixed,server_name:mixed}|null
+     */
+    public function findInviteServerSummaryByCode(string $code): ?array
+    {
+        $stmt = $this->pdo->prepare('SELECT server_id, created_at FROM invitations WHERE code = ?');
+        $stmt->execute([$code]);
+        $invite = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($invite === false) {
+            return null;
+        }
+
+        $stmt = $this->pdo->prepare('SELECT name FROM servers WHERE id = ?');
+        $stmt->execute([$invite['server_id']]);
+        $server = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return [
+            'server_id' => $invite['server_id'],
+            'server_name' => $server['name'],
+        ];
+    }
+
     public function isUserMemberOfServer(int $serverId, int $userId): bool
     {
         $stmt = $this->pdo->prepare('SELECT 1 FROM server_members WHERE server_id = ? AND user_id = ? LIMIT 1');

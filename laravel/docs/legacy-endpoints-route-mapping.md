@@ -1,87 +1,56 @@
-# Mapping des endpoints legacy vers les routes Laravel
+# Mapping des endpoints historiques vers Laravel
 
-Ce document référence le mapping des endpoints historiques `/api/*.php` vers `laravel/routes/api.php`, en conservant les paramètres et les contraintes de middleware.
+Ce document référence l'état final du mapping public après convergence : les URLs historiques restent compatibles, mais le runtime dynamique est Laravel.
 
-## Middlewares utilisés
+## État runtime
 
-- `auth.session` : vérifie `$_SESSION['user_id']`.
-- `p1.only` : vérifie l'accès admin global (P1).
+- Les fichiers wrappers legacy `api/*.php` ne sont plus actifs.
+- Le runtime legacy `app/*`, `ApiKernel` et `Autoload` ne sont plus actifs.
+- `router.php` transfère `/api/<name>.php` vers `laravel/public/index.php`.
+- `router.php` transfère aussi `/invite.php` vers Laravel.
+- Le fichier racine `invite.php` existe uniquement comme façade front-controller Laravel-compatible pour les environnements qui servent directement ce fichier.
 
-## Groupes de routes
+## Routes publiques conservées
 
-## Phase 1 — LegacyBridge (`/api/*.php` via front controller Laravel)
-
-Les endpoints ci-dessous sont désormais capturés par `LegacyBridgeController::handle()` dans `routes/api.php` (URLs publiques inchangées).
-
-| Endpoint legacy | Route Laravel | Middleware | Dispatch bridge |
+| Endpoint public | Route Laravel | Paramètres conservés | Délégation |
 |---|---|---|---|
-| `/api/get_servers.php` | `GET /api/get_servers.php` | `auth.session` | Laravel (`ServerController::index`) |
-| `/api/get_server_name.php` | `GET /api/get_server_name.php` | `auth.session` | Laravel (`ServerController::showName`) |
-| `/api/get_channels.php` | `GET /api/get_channels.php` | `auth.session` | Laravel (`ChannelController::index`) |
-| `/api/get_messages.php` | `GET /api/get_messages.php` | `auth.session` | Laravel (`MessageController::index`) |
-| `/api/create_server.php` | `POST /api/create_server.php` | `auth.session` | Legacy fallback (`require ../api/create_server.php`) |
-| `/api/create_channel.php` | `POST /api/create_channel.php` | `auth.session` | Legacy fallback (`require ../api/create_channel.php`) |
-| `/api/send_message.php` | `POST /api/send_message.php` | `auth.session` | Legacy fallback (`require ../api/send_message.php`) |
-| `/api/create_invite.php` | `POST /api/create_invite.php` | `auth.session` | Legacy fallback (`require ../api/create_invite.php`) |
-| `/api/accept_invite.php` | `POST /api/accept_invite.php` | `auth.session` | Legacy fallback (`require ../api/accept_invite.php`) |
-
-### 1) Register
-
-| Endpoint legacy | Méthode | Middleware | Paramètres conservés | Délégation |
-|---|---|---|---|---|
-| `/api/register.php` | `POST` | — | JSON: `username`, `email`, `password` | `AuthController::register()` |
-
-### 2) Servers
-
-| Endpoint legacy | Méthode | Middleware | Paramètres conservés | Délégation |
-|---|---|---|---|---|
-| `/api/get_servers.php` | `GET` | `auth.session` | session `user_id` | `ServerController::index()` |
-| `/api/create_server.php` | `POST` | `auth.session` | JSON: `nom` / `name` | `ServerController::create()` |
-| `/api/get_server_name.php` | `GET` | `auth.session` | query: `id` | `ServerController::showName()` |
-
-### 3) Channels
-
-| Endpoint legacy | Méthode | Middleware | Paramètres conservés | Délégation |
-|---|---|---|---|---|
-| `/api/get_channels.php` | `GET` | `auth.session` | query: `server_id` | `ChannelController::index()` |
-| `/api/create_channel.php` | `POST` | `auth.session` | JSON: `server_id`, `name` | `ChannelController::create()` |
-
-### 4) Messages
-
-| Endpoint legacy | Méthode | Middleware | Paramètres conservés | Délégation |
-|---|---|---|---|---|
-| `/api/get_messages.php` | `GET` | `auth.session` | query: `channel_id` | `MessageController::index()` |
-| `/api/send_message.php` | `POST` | `auth.session` | JSON: `channel_id`, `content` | `MessageController::create()` |
-| `/api/delete_message.php` | `ANY` (legacy non verrouillé) | `auth.session` | JSON: `message_id` | `MessageController::delete()` |
-
-### 5) DM
-
-| Endpoint legacy | Méthode | Middleware | Paramètres conservés | Délégation |
-|---|---|---|---|---|
-| `/api/start_dm.php` | `POST` | `auth.session` | JSON: `other_user_id` | `DmController::start()` |
-| `/api/get_dm_messages.php` | `GET` | `auth.session` | query: `conversation_id` | `DmController::messages()` |
-| `/api/send_dm.php` | `POST` | `auth.session` | JSON: `conversation_id`, `content` | `DmController::send()` |
-| `/api/get_dm_notifications.php` | `GET` | `auth.session` | session `user_id` | `DmController::notifications()` |
-
-### 6) Moderation
-
-| Endpoint legacy | Méthode | Middleware | Paramètres conservés | Délégation |
-|---|---|---|---|---|
-| `/api/get_my_server_role.php` | `GET` | `auth.session` | query: `server_id` (nullable) | `RoleModerationController::getMyServerRole()` |
-| `/api/get_users_in_server.php` | `GET` | `auth.session` | query: `server_id` | `RoleModerationController::listUsersInServer()` |
-| `/api/set_member_role.php` | `ANY` (legacy non verrouillé) | `auth.session` | JSON: `target_user_id`, `server_id`, `new_role` | `RoleModerationController::setMemberRole()` |
-| `/api/kick_member.php` | `ANY` (legacy non verrouillé) | `auth.session` | JSON: `target_user_id`, `server_id` | `RoleModerationController::kickMember()` |
-
-### 7) Admin
-
-| Endpoint legacy | Méthode | Middleware | Paramètres conservés | Délégation |
-|---|---|---|---|---|
-| `/api/get_all_users.php` | `GET` | `auth.session` + `p1.only` | session `user_id` | `AdminUserController::listUsers()` |
-| `/api/get_user_servers.php` | `GET` | `auth.session` + `p1.only` | query: `user_id` | `AdminUserController::listUserServers()` |
-| `/api/ban_user.php` | `ANY` (legacy non verrouillé) | `auth.session` + `p1.only` | JSON: `user_id` | suppression SQL directe dans la route |
+| `/api/login.php` | `laravel/routes/api.php` | JSON: `username`, `password` | `AuthController::login()` |
+| `/api/register.php` | `laravel/routes/api.php` | JSON: `username`, `email`, `password` | `AuthController::register()` |
+| `/api/check_auth.php` | `laravel/routes/api.php` | session native | `AuthController::checkAuth()` |
+| `/api/auth.php` | `laravel/routes/api.php` | session native | `AuthController::auth()` |
+| `/api/logout.php` | `laravel/routes/api.php` | session native | `AuthController::logout()` |
+| `/api/get_profile.php` | `laravel/routes/api.php` | session native | `Api\GetProfileController::handle()` |
+| `/api/get_user_profile.php` | `laravel/routes/api.php` | query: `user_id` | `Api\GetUserProfileController::handle()` |
+| `/api/update_profile.php` | `laravel/routes/api.php` | JSON: `bio`, `avatar_url`, `status` | `Api\UpdateProfileController::handle()` |
+| `/api/update_account.php` | `laravel/routes/api.php` | JSON: `username`, `email`, `password`, `current_password` | `AccountController::update()` |
+| `/api/get_servers.php` | `laravel/routes/api.php` | session native | `ServerController::index()` |
+| `/api/create_server.php` | `laravel/routes/api.php` | JSON: `nom` / `name` | `ServerController::create()` |
+| `/api/get_server_name.php` | `laravel/routes/api.php` | query: `id` | `ServerController::showName()` |
+| `/api/get_channels.php` | `laravel/routes/api.php` | query: `server_id` | `ChannelController::index()` |
+| `/api/create_channel.php` | `laravel/routes/api.php` | JSON: `server_id`, `name` | `ChannelController::create()` |
+| `/api/get_messages.php` | `laravel/routes/api.php` | query: `channel_id` | `MessageController::index()` |
+| `/api/send_message.php` | `laravel/routes/api.php` | JSON: `channel_id`, `content` | `MessageController::create()` |
+| `/api/delete_message.php` | `laravel/routes/api.php` | JSON: `message_id` | `MessageController::delete()` |
+| `/api/create_invite.php` | `laravel/routes/api.php` | form: `server_id` | `InvitationController::create()` |
+| `/api/accept_invite.php` | `laravel/routes/api.php` | form: `code` | `InvitationController::accept()` |
+| `/api/start_dm.php` | `laravel/routes/api.php` | JSON: `other_user_id` | `DmController::start()` |
+| `/api/get_dm_messages.php` | `laravel/routes/api.php` | query: `conversation_id` | `DmController::messages()` |
+| `/api/send_dm.php` | `laravel/routes/api.php` | JSON: `conversation_id`, `content` | `DmController::send()` |
+| `/api/get_dm_notifications.php` | `laravel/routes/api.php` | session native | `DmController::notifications()` |
+| `/api/get_my_server_role.php` | `laravel/routes/api.php` | query: `server_id` | `RoleModerationController::getMyServerRole()` |
+| `/api/get_users_in_server.php` | `laravel/routes/api.php` | query: `server_id` | `RoleModerationController::listUsersInServer()` |
+| `/api/set_member_role.php` | `laravel/routes/api.php` | JSON: `target_user_id`, `server_id`, `new_role` | `RoleModerationController::setMemberRole()` |
+| `/api/kick_member.php` | `laravel/routes/api.php` | JSON: `target_user_id`, `server_id` | `RoleModerationController::kickMember()` |
+| `/api/get_all_users.php` | `laravel/routes/api.php` | session native | `AdminUserController::listUsers()` |
+| `/api/get_user_servers.php` | `laravel/routes/api.php` | query: `user_id` | `AdminUserController::listUserServers()` |
+| `/api/ban_user.php` | `laravel/routes/api.php` | JSON: `user_id` | `Api\BanUserController::handle()` |
+| `/api/xxx.php` | `laravel/routes/api.php` | request legacy-compatible | `Api\XxxController::handle()` |
+| `/api/health.php` | `laravel/routes/api.php` | none | JSON health response |
+| `/invite.php` | `router.php` -> internal `/api/invite.php` in `laravel/routes/api.php` | query: `code`, session native | `InvitationController::resolve()` |
 
 ## Notes de compatibilité
 
-- Aucun fichier legacy `/api/*.php` n'est supprimé; l'ancien backend continue de fonctionner en parallèle.
-- Les endpoints historiquement non verrouillés en méthode HTTP restent exposés en `Route::any(...)` pour préserver le contrat.
-- Le mapping route/controller dans Laravel est centralisé dans `laravel/routes/api.php`.
+- Les endpoints historiquement non verrouillés en méthode HTTP restent exposés en `Route::any(...)` lorsque le contrat l'exige.
+- Les statuts HTTP et payloads historiques restent la référence jusqu'à changement contractuel explicite.
+- L'authentification publique existante reste basée sur la session PHP native `$_SESSION['user_id']` pour préserver les contrats.
+- `LegacyBridgeController` a été retiré : aucun fallback vers des wrappers supprimés ne subsiste dans le runtime Laravel.

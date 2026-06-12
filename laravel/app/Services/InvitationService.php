@@ -34,6 +34,23 @@ final class InvitationService
     }
 
     /**
+     * @return array{success:bool,server_id?:mixed,server_name?:mixed,error?:string}
+     */
+    public function resolveInvite(?int $userId, ?string $code): array
+    {
+        if (!$userId || !$code) {
+            return ['success' => false, 'error' => 'Utilisateur non connecté ou lien invalide.'];
+        }
+
+        $invite = $this->invitationRepository->findInviteServerSummaryByCode($code);
+        if ($invite === null) {
+            return ['success' => false, 'error' => 'Lien invalide.'];
+        }
+
+        return ['success' => true] + $invite;
+    }
+
+    /**
      * @return array{success:bool,invite_url?:string,error?:string}
      */
     public function createInvite(?int $userId, ?int $serverId): array
