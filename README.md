@@ -1,16 +1,17 @@
 # Biscord
 
-Biscord is a Discord-like web application currently maintained as a hybrid PHP and Laravel codebase.
+Biscord is a Discord-like web application whose dynamic backend runtime is Laravel.
 
-The public application is served from the project root. Legacy API wrappers remain in `api/*.php`, while migrated behavior is implemented in the Laravel application under `laravel/`.
+The public application is served from the project root. Historical API URLs such as `/api/login.php` and `/api/get_servers.php` are preserved for frontend compatibility, but they are routed into the Laravel application under `laravel/`. The legacy `api/*.php` wrappers and legacy `app/*` runtime are no longer active.
 
 ## Project Layout
 
-- `api/` - public API wrapper files kept for legacy contract compatibility.
-- `app/` - legacy PHP domain code still used by some wrappers.
+- `api/docs/` - static API documentation assets.
 - `laravel/` - Laravel application, controllers, services, repositories, routes, and tests.
 - `frontend/`, `styles/`, `*.html`, `*.js` - public frontend assets and pages.
-- `config/` - environment-specific PHP configuration.
+- `config/` - environment-specific PHP configuration loaded before Laravel for the legacy-compatible native session/PDO bridge.
+- `invite.php` - minimal Laravel front-controller facade for the historical root invite lookup URL.
+- `router.php` - PHP built-in server router that forwards `/api/*.php` and `/invite.php` into Laravel.
 - `biscord_db.sql` - database schema dump.
 
 ## Requirements
@@ -40,7 +41,7 @@ Configure database credentials for the target environment in the existing PHP an
 
 ## Run Locally
 
-From the project root, the public legacy-compatible entrypoints can be served with PHP's built-in server. The `router.php` script forwards the historical `/api/*.php` URLs to the Laravel runtime (the legacy `api/*.php` wrappers no longer exist):
+From the project root, the public legacy-compatible entrypoints can be served with PHP's built-in server. The `router.php` script forwards historical `/api/*.php` URLs and `/invite.php` to the Laravel runtime:
 
 ```bash
 php -S 127.0.0.1:8000 -t . router.php
@@ -72,9 +73,9 @@ On the shared test server, the Contract suite is expected to run against the con
 
 ## Migration Notes
 
-The project is being migrated endpoint by endpoint from legacy PHP to Laravel. During migration:
+The Laravel runtime owns the dynamic backend surface. During future changes:
 
-- keep public `api/*.php` wrappers in place;
-- preserve existing JSON payloads, HTTP statuses, headers, and session behavior;
-- avoid global rewrites;
-- treat Contract tests as the compatibility gate.
+- preserve existing JSON payloads, HTTP statuses, headers, and session behavior unless a contract change is intentional;
+- keep historical `/api/*.php` URLs working as compatibility routes;
+- treat Contract tests as the compatibility gate;
+- avoid reintroducing procedural PHP runtime logic outside Laravel.

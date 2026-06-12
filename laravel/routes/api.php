@@ -280,6 +280,10 @@ Route::any('/accept_invite.php', function () use ($optionalNativeUserId) {
     return app(InvitationController::class)->accept($userId, $code);
 });
 
+Route::any('/invite.php', function (Request $request) {
+    return app(InvitationController::class)->resolve($request);
+});
+
 /*
 |--------------------------------------------------------------------------
 | DM
