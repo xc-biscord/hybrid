@@ -16,6 +16,8 @@ final class TestDatabaseSeeder
     public const SERVER_1_ID = 1101;
     public const CHANNEL_1_ID = 1201;
     public const DM_CONVERSATION_ID = 2001;
+    public const PASSKEY_ALICE_ID = 3001;
+    public const PASSKEY_ALICE_CREDENTIAL_ID = 'dGVzdC1jcmVkZW50aWFsLWlkLWFsaWNl'; // base64url factice
 
     public static function resetAndSeed(): void
     {
@@ -29,6 +31,7 @@ final class TestDatabaseSeeder
         $pdo->exec('SET FOREIGN_KEY_CHECKS=0');
 
         foreach ([
+            'user_passkeys',
             'dm_reads',
             'dm_messages',
             'dm_conversations',
@@ -88,6 +91,23 @@ final class TestDatabaseSeeder
 
         $dmConversationStmt = $pdo->prepare('INSERT INTO dm_conversations (id, user1_id, user2_id, created_at) VALUES (?, ?, ?, NOW())');
         $dmConversationStmt->execute([self::DM_CONVERSATION_ID, self::USER_ALICE_ID, self::USER_BOB_ID]);
+
+        // Fausse passkey pour Alice : sert aux tests de contrat de la liste et de
+        // la suppression (ces endpoints ne re-vérifient pas la cryptographie en
+        // lecture). Les vrais flux create()/get() sont testés manuellement.
+        $passkeyStmt = $pdo->prepare(
+            'INSERT INTO user_passkeys (id, user_id, credential_id, public_key, sign_count, name, user_handle, created_at, last_used_at)'
+            . ' VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NULL)'
+        );
+        $passkeyStmt->execute([
+            self::PASSKEY_ALICE_ID,
+            self::USER_ALICE_ID,
+            self::PASSKEY_ALICE_CREDENTIAL_ID,
+            'c29tZS1mYWtlLXB1YmxpYy1rZXk=', // base64 factice : seed de test uniquement
+            0,
+            'Clé de test Alice',
+            (string) self::USER_ALICE_ID,
+        ]);
     }
 
     private static function connect(): PDO

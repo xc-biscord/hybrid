@@ -152,13 +152,89 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ------------------------------------------------------------------
-  // Connexion
+  // Connexion en deux étapes
+  //   Étape 1 : on saisit l'identifiant, le serveur indique les méthodes dispo.
+  //   Étape 2 : selon les méthodes -> mot de passe (fallback) et/ou passkey.
+  // Le chemin mot de passe utilise /api/login.php, INCHANGÉ.
   // ------------------------------------------------------------------
+  const identifiantInput = document.getElementById("identifiant");
+  const btnContinuer = document.getElementById("btn-continuer");
+  const step2 = document.getElementById("step2-methods");
+  const fieldPassword = document.getElementById("field-password");
+  const passwordInputConnexion = document.getElementById("mdp-connexion");
+  const btnPasskeyLogin = document.getElementById("btn-passkey-login");
+  const btnChangeIdentifier = document.getElementById("btn-change-identifier");
+
+  function resetToStep1() {
+    step2.classList.add("hidden");
+    btnContinuer.classList.remove("hidden");
+    passwordInputConnexion.value = "";
+    identifiantInput.disabled = false;
+    identifiantInput.focus();
+  }
+
+  // Étape 1 : interroge le serveur sur les méthodes disponibles pour ce compte.
+  async function continuerVersMethodes() {
+    const identifier = identifiantInput.value.trim();
+    if (!identifier) {
+      showToast("Champ manquant", "Saisis ton identifiant ou ton e-mail.", "error");
+      return;
+    }
+
+    btnContinuer.disabled = true;
+    btnContinuer.dataset.label = btnContinuer.textContent;
+    btnContinuer.textContent = "Vérification…";
+
+    try {
+      const res = await fetch(`${API_BASE}/login_methods.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ identifier }),
+      });
+      const data = await res.json();
+
+      // password est toujours proposé (fallback + anti-énumération).
+      const methods = data.methods || { password: true, passkey: false };
+      revelerMethodes(methods);
+    } catch {
+      // En cas d'échec réseau on bascule quand même sur le mot de passe.
+      revelerMethodes({ password: true, passkey: false });
+    } finally {
+      btnContinuer.disabled = false;
+      btnContinuer.textContent = btnContinuer.dataset.label || "Continuer";
+    }
+  }
+
+  function revelerMethodes(methods) {
+    btnContinuer.classList.add("hidden");
+    step2.classList.remove("hidden");
+    identifiantInput.disabled = true;
+
+    // Mot de passe : disponible par défaut (fallback principal).
+    fieldPassword.classList.toggle("hidden", methods.password === false);
+
+    // Passkey : seulement si WebAuthn est supporté ET le compte en possède une.
+    const passkeyUsable = methods.passkey === true && window.BiscordWebAuthn && window.BiscordWebAuthn.isSupported();
+    btnPasskeyLogin.classList.toggle("hidden", !passkeyUsable);
+
+    if (methods.password !== false) {
+      passwordInputConnexion.focus();
+    }
+  }
+
+  // Voie mot de passe (soumission du formulaire) — INCHANGÉE côté API.
   formConnexion.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const username = document.getElementById("identifiant").value.trim();
-    const password = document.getElementById("mdp-connexion").value;
+    // Si on est encore à l'étape 1 (Entrée dans le champ identifiant), on avance.
+    if (step2.classList.contains("hidden")) {
+      continuerVersMethodes();
+      return;
+    }
+
+    const username = identifiantInput.value.trim();
+    const password = passwordInputConnexion.value;
 
     if (!username || !password) {
       showToast("Champs manquants", "Identifiant et mot de passe sont obligatoires.", "error");
@@ -197,6 +273,68 @@ document.addEventListener("DOMContentLoaded", () => {
       setSubmitting(formConnexion, false);
     }
   });
+
+  // Voie passkey (étape 2).
+  async function connexionParPasskey() {
+    const identifier = identifiantInput.value.trim();
+    const WA = window.BiscordWebAuthn;
+    if (!WA || !WA.isSupported()) {
+      showToast("Non supporté", "Les passkeys ne sont pas disponibles sur ce navigateur.", "error");
+      return;
+    }
+
+    btnPasskeyLogin.disabled = true;
+    try {
+      // 1) Récupère le challenge et la liste des credentials autorisés.
+      const optRes = await fetch(`${API_BASE}/passkey_login_options.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ identifier }),
+      });
+      const optData = await optRes.json();
+      if (!optData.success) {
+        showToast("Erreur", optData.error || "Impossible de préparer la passkey.", "error");
+        return;
+      }
+
+      // 2) Laisse l'authentificateur signer le challenge.
+      const publicKey = WA.prepareRequestOptions(optData.options);
+      let credential;
+      try {
+        credential = await navigator.credentials.get({ publicKey });
+      } catch {
+        showToast("Annulé", "Connexion par passkey annulée ou impossible.", "error");
+        return;
+      }
+
+      // 3) Envoie la réponse signée au serveur pour vérification.
+      const verifyRes = await fetch(`${API_BASE}/passkey_login_verify.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(WA.serializeAssertion(credential)),
+      });
+      const verifyData = await verifyRes.json();
+
+      if (verifyData.success) {
+        showToast("Connexion réussie !", "Redirection en cours…", "success");
+        setTimeout(() => {
+          window.location.href = "/accueil.html";
+        }, 1200);
+      } else {
+        showToast("Erreur", verifyData.error || "Échec de la connexion par passkey.", "error");
+      }
+    } catch {
+      showToast("Erreur réseau", "Impossible de joindre l'API.", "error");
+    } finally {
+      btnPasskeyLogin.disabled = false;
+    }
+  }
+
+  btnContinuer.addEventListener("click", continuerVersMethodes);
+  btnPasskeyLogin.addEventListener("click", connexionParPasskey);
+  btnChangeIdentifier.addEventListener("click", resetToStep1);
 
   // ------------------------------------------------------------------
   // État des services (carte de statut)

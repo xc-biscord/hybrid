@@ -23,7 +23,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/auth.css?v=9.0">
-  <script src="index.js?v=7.0" defer></script>
+  <!-- Helper WebAuthn (PoC Passkeys) chargé avant index.js (defer préserve l'ordre). -->
+  <script src="frontend/auth/webauthn.js?v=1" defer></script>
+  <script src="index.js?v=8.0" defer></script>
   <link rel="stylesheet" href="styles/test-environment.css?v=2">
   <script src="test-environment.js?v=2" defer></script>
 </head>
@@ -44,22 +46,36 @@
       </p>
     </div>
 
-    <!-- Connexion -->
+    <!-- Connexion (login en deux étapes : identification puis choix de méthode) -->
     <form id="form-connexion" class="card fade-in" autocomplete="off" novalidate>
       <h1>Ravi de te revoir !</h1>
       <p class="subtitle">On est super heureux de te revoir !</p>
 
+      <!-- Étape 1 : identification -->
       <div class="field">
         <label for="identifiant">E-mail ou nom d'utilisateur <span class="required">*</span></label>
         <input type="text" id="identifiant" name="biscord_identifiant" required autocomplete="username">
       </div>
 
-      <div class="field">
-        <label for="mdp-connexion">Mot de passe <span class="required">*</span></label>
-        <input type="password" id="mdp-connexion" name="biscord_connexion_mdp" required autocomplete="current-password">
-      </div>
+      <button type="button" id="btn-continuer" class="btn-primary">Continuer</button>
 
-      <input type="submit" value="Se connecter" class="btn-primary" />
+      <!-- Étape 2 : méthodes disponibles (révélée après l'étape 1) -->
+      <div id="step2-methods" class="hidden">
+        <!-- Voie mot de passe : fallback principal, toujours disponible -->
+        <div class="field" id="field-password">
+          <label for="mdp-connexion">Mot de passe <span class="required">*</span></label>
+          <input type="password" id="mdp-connexion" name="biscord_connexion_mdp" autocomplete="current-password">
+        </div>
+
+        <input type="submit" id="btn-password-login" value="Se connecter" class="btn-primary" />
+
+        <!-- Voie passkey : affichée uniquement si le compte en possède une -->
+        <button type="button" id="btn-passkey-login" class="btn-secondary hidden">🔐 Se connecter avec une passkey</button>
+
+        <p class="alt-action">
+          <button type="button" class="text-link" id="btn-change-identifier">← Changer d'identifiant</button>
+        </p>
+      </div>
 
       <p class="alt-action">
         Besoin d'un compte ?
