@@ -60,6 +60,22 @@
         <button type="submit">💾 Enregistrer les réglages du mot de passe</button>
       </form>
     </section>
+
+    <!-- Section Passkeys (PoC WebAuthn). Le mot de passe reste actif en parallèle. -->
+    <section class="passkeys-card" id="passkeys-section">
+      <h3>🔐 Passkeys (connexion sans mot de passe)</h3>
+      <p class="passkeys-help">
+        Une passkey te permet de te connecter avec ton téléphone, ton empreinte
+        ou une clé de sécurité, sans saisir de mot de passe. Le mot de passe
+        reste disponible en secours.
+      </p>
+
+      <ul id="passkeys-list" class="passkeys-list">
+        <li class="passkeys-empty">Chargement…</li>
+      </ul>
+
+      <button type="button" id="btn-add-passkey">➕ Ajouter une passkey</button>
+    </section>
   </div>
 
   <div id="biscord-toast" class="hidden toast-wrapper">
@@ -70,5 +86,8 @@
   </div>
 
   <script type="module" src="frontend/controllers/ProfilePageController.js"></script>
+  <!-- Helper WebAuthn chargé en script classique avant le module passkeys. -->
+  <script src="frontend/auth/webauthn.js?v=1"></script>
+  <script type="module" src="frontend/controllers/PasskeyController.js"></script>
 </body>
 </html>

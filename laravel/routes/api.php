@@ -7,6 +7,10 @@ use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\Api\BanUserController;
 use App\Http\Controllers\Api\GetProfileController;
 use App\Http\Controllers\Api\GetUserProfileController;
+use App\Http\Controllers\Api\Passkey\LoginMethodsController;
+use App\Http\Controllers\Api\Passkey\PasskeyAuthController;
+use App\Http\Controllers\Api\Passkey\PasskeyManagementController;
+use App\Http\Controllers\Api\Passkey\PasskeyRegisterController;
 use App\Http\Controllers\Api\UpdateProfileController;
 use App\Http\Controllers\Api\XxxController;
 use App\Http\Controllers\AuthController;
@@ -38,7 +42,7 @@ $requireAuthUserId = static function (): int|JsonResponse {
         session_start();
     }
 
-    if (!isset($_SESSION['user_id']) || !is_numeric($_SESSION['user_id'])) {
+    if (! isset($_SESSION['user_id']) || ! is_numeric($_SESSION['user_id'])) {
         return new JsonResponse(['success' => false, 'error' => 'Non authentifié'], 401);
     }
 
@@ -60,7 +64,7 @@ $jsonInput = static function (Request $request): array|JsonResponse {
     }
 
     $data = json_decode($raw, true);
-    if (!is_array($data)) {
+    if (! is_array($data)) {
         return new JsonResponse(['success' => false, 'error' => 'JSON invalide'], 400);
     }
 
@@ -130,6 +134,74 @@ Route::any('/logout.php', function () {
 
 /*
 |--------------------------------------------------------------------------
+| Passkeys / WebAuthn (PoC expérimental — additif, ne touche pas login.php)
+|--------------------------------------------------------------------------
+|
+| Login en deux étapes :
+|   1. /api/login_methods.php       -> méthodes disponibles (password/passkey)
+|   2a. /api/login.php              -> voie mot de passe (INCHANGÉE, fallback)
+|   2b. /api/passkey_login_*.php    -> voie passkey (challenge puis vérification)
+|
+| Gestion depuis le profil (utilisateur connecté) :
+|   /api/passkey_register_options.php, /api/passkey_register_verify.php,
+|   /api/passkey_list.php, /api/passkey_delete.php
+|
+*/
+
+Route::any('/login_methods.php', function (Request $request) use ($requireMethod) {
+    if ($error = $requireMethod($request, 'POST')) {
+        return $error;
+    }
+
+    return app(LoginMethodsController::class)->handle($request);
+});
+
+Route::any('/passkey_login_options.php', function (Request $request) use ($requireMethod) {
+    if ($error = $requireMethod($request, 'POST')) {
+        return $error;
+    }
+
+    return app(PasskeyAuthController::class)->options($request);
+});
+
+Route::any('/passkey_login_verify.php', function (Request $request) use ($requireMethod) {
+    if ($error = $requireMethod($request, 'POST')) {
+        return $error;
+    }
+
+    return app(PasskeyAuthController::class)->verify($request);
+});
+
+Route::any('/passkey_register_options.php', function (Request $request) use ($requireMethod) {
+    if ($error = $requireMethod($request, 'POST')) {
+        return $error;
+    }
+
+    return app(PasskeyRegisterController::class)->options($request);
+});
+
+Route::any('/passkey_register_verify.php', function (Request $request) use ($requireMethod) {
+    if ($error = $requireMethod($request, 'POST')) {
+        return $error;
+    }
+
+    return app(PasskeyRegisterController::class)->verify($request);
+});
+
+Route::any('/passkey_list.php', function (Request $request) {
+    return app(PasskeyManagementController::class)->list($request);
+});
+
+Route::any('/passkey_delete.php', function (Request $request) use ($requireMethod) {
+    if ($error = $requireMethod($request, 'POST')) {
+        return $error;
+    }
+
+    return app(PasskeyManagementController::class)->delete($request);
+});
+
+/*
+|--------------------------------------------------------------------------
 | Profile / account
 |--------------------------------------------------------------------------
 */
@@ -147,7 +219,7 @@ Route::any('/update_profile.php', function (Request $request) {
 });
 
 Route::any('/update_account.php', function (Request $request) use ($jsonInput) {
-    if (!isset($_SESSION['user_id'])) {
+    if (! isset($_SESSION['user_id'])) {
         return new JsonResponse(['success' => false, 'error' => 'Non connecté'], 200);
     }
 
@@ -414,7 +486,7 @@ Route::any('/get_user_servers.php', function (Request $request) use ($requireAut
         return $userId;
     }
 
-    if (!$request->query->has('user_id') || !is_numeric($request->query('user_id'))) {
+    if (! $request->query->has('user_id') || ! is_numeric($request->query('user_id'))) {
         return new JsonResponse(['success' => false, 'error' => 'Paramètre user_id manquant ou invalide'], 400);
     }
 
