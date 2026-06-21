@@ -1,2 +1,25 @@
-
+# --- Secrets et configuration locale (jamais versionnés) ---
+# config/config.php contient les identifiants de connexion à la base de données.
+# Il est généré à partir de config/config.example.php lors de l'installation.
 config/config.php
+
+# Le fichier d'environnement de l'application Laravel (clés, secrets) est ignoré
+# dans laravel/.gitignore ; laravel/.env.example reste versionné comme modèle.
+
+# --- Dépendances et artefacts de build ---
+/node_modules
+/frontend/node_modules
+/vendor
+
+# --- Artefacts transitoires (challenges Let's Encrypt) ---
+/.well-known/acme-challenge/
+
+# --- Logs ---
+*.log
+
+# --- Fichiers système / éditeurs ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
