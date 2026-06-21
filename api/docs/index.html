@@ -2,211 +2,89 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Biscord API – Documentation</title>
-  <link rel="stylesheet" href="styles.css?v=4">
-  <link rel="stylesheet" href="prism/prism-tomorrow.css">
-  <script src="prism/prism.js?v=6.0" defer></script>
-  <script src="prism/components/prism-json.min.js?v=6.0" defer></script>
-  <script src="layout.js?v=2.3" defer></script>
-  <script src="search.js?v=2.1" defer></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Biscord API Documentation</title>
+  <link rel="stylesheet" href="/api/docs/styles.css?v=20260621-3">
+  <script src="/api/docs/docs-data.js?v=20260621-3" defer></script>
+  <script src="/api/docs/search.js?v=20260621-3" defer></script>
 </head>
 <body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">Biscord REST API</p>
+      <h1>Documentation API / API Documentation</h1>
+      <p class="lead">
+        Référence complète des endpoints REST sous <code>/api/</code>.
+        Complete REST endpoint reference for <code>/api/</code>.
+      </p>
+    </div>
+    <div class="language-switch" aria-label="Language">
+      <button type="button" data-lang="fr" class="active">FR</button>
+      <button type="button" data-lang="en">EN</button>
+    </div>
+  </header>
 
-<h2>📘 Documentation de l’API Biscord</h2>
-<p>Référence des endpoints REST exposés sous <code>/api/</code>. En production :
-<code>https://biscord-api-stg.xcsoftworks.com/api/</code>. En local :
-<code>http://127.0.0.1:8000/api/</code>.</p>
+  <div class="shell">
+    <aside class="sidebar" aria-label="Endpoints">
+      <label for="search-input">Rechercher / Search</label>
+      <input id="search-input" type="search" placeholder="login, server, passkey...">
+      <nav id="endpoint-nav"></nav>
+    </aside>
 
-<h3>Authentification</h3>
-<p>L’authentification repose sur la <strong>session PHP</strong> (cookie <code>PHPSESSID</code>).
-On se connecte via <code>login.php</code> (ou le flux passkey), puis la session est
-réutilisée pour les appels suivants. Il n’existe pas encore de token d’API ni d’OAuth public.</p>
+    <main>
+      <section class="intro">
+        <div>
+          <h2 data-i18n-fr="Vue d'ensemble" data-i18n-en="Overview">Vue d'ensemble</h2>
+          <p data-i18n-fr="Base de production : https://biscord-api-stg.xcsoftworks.com/api/. Base locale Laravel habituelle : http://127.0.0.1:8000/api/."
+             data-i18n-en="Production base URL: https://biscord-api-stg.xcsoftworks.com/api/. Usual local Laravel base URL: http://127.0.0.1:8000/api/.">
+            Base de production : <code>https://biscord-api-stg.xcsoftworks.com/api/</code>.
+            Base locale Laravel habituelle : <code>http://127.0.0.1:8000/api/</code>.
+          </p>
+          <p data-i18n-fr="L'authentification utilise une session PHP via le cookie PHPSESSID. Il n'y a pas de token public ni OAuth dans cette API."
+             data-i18n-en="Authentication uses a PHP session through the PHPSESSID cookie. This API does not expose a public bearer token or OAuth flow.">
+            L'authentification utilise une session PHP via le cookie <code>PHPSESSID</code>.
+            Il n'y a pas de token public ni OAuth dans cette API.
+          </p>
+        </div>
+        <div class="facts">
+          <div><strong id="endpoint-count">40</strong><span>Endpoints</span></div>
+          <div><strong>JSON</strong><span>Default format</span></div>
+          <div><strong>Session</strong><span>Authentication</span></div>
+        </div>
+      </section>
 
-<h3>Format des données</h3>
-<p>Sauf mention contraire, les corps de requête et les réponses sont en <strong>JSON</strong>.
-Convention générale :</p>
-<pre><code class="language-json">{
+      <section class="conventions">
+        <h2 data-i18n-fr="Conventions" data-i18n-en="Conventions">Conventions</h2>
+        <div class="grid">
+          <article>
+            <h3 data-i18n-fr="Succès" data-i18n-en="Success">Succès</h3>
+            <pre><code>{
   "success": true
 }</code></pre>
-<p>En cas d’erreur :</p>
-<pre><code class="language-json">{
+          </article>
+          <article>
+            <h3 data-i18n-fr="Erreur" data-i18n-en="Error">Erreur</h3>
+            <pre><code>{
   "success": false,
   "error": "Message lisible"
 }</code></pre>
-<p>Codes HTTP courants : <code>200</code> succès, <code>400</code> requête invalide,
-<code>401</code> non authentifié, <code>403</code> interdit, <code>404</code> introuvable,
-<code>405</code> méthode non autorisée.</p>
+          </article>
+        </div>
+        <p data-i18n-fr="Codes courants : 200 succès, 201 créé, 400 requête invalide, 401 non authentifié, 403 interdit, 404 introuvable, 405 méthode non autorisée, 409 conflit, 422 données WebAuthn invalides, 429 limitation de tentatives, 500 erreur serveur."
+           data-i18n-en="Common status codes: 200 success, 201 created, 400 bad request, 401 unauthenticated, 403 forbidden, 404 not found, 405 method not allowed, 409 conflict, 422 invalid WebAuthn data, 429 throttled, 500 server error.">
+          Codes courants : <code>200</code>, <code>201</code>, <code>400</code>, <code>401</code>,
+          <code>403</code>, <code>404</code>, <code>405</code>, <code>409</code>, <code>422</code>,
+          <code>429</code>, <code>500</code>.
+        </p>
+      </section>
 
-<hr>
+      <section id="docs-root" class="endpoint-list" aria-live="polite"></section>
+    </main>
+  </div>
 
-<h2>🔐 Authentification &amp; session</h2>
-
-<h3 id="login">login.php — POST</h3>
-<p>Connecte un utilisateur par identifiant (username ou e-mail) + mot de passe et ouvre la session.</p>
-<pre><code class="language-json">{ "username": "alice", "password": "secret" }</code></pre>
-<p>Succès :</p>
-<pre><code class="language-json">{ "success": true }</code></pre>
-<p>Erreur (identifiants invalides) : <code>401</code> <code>{ "success": false, "error": "Identifiants invalides" }</code></p>
-
-<h3 id="register">register.php — POST</h3>
-<p>Crée un compte (username, e-mail, mot de passe) puis le profil associé.</p>
-<pre><code class="language-json">{ "username": "alice", "email": "alice@example.com", "password": "secret" }</code></pre>
-<p>Succès : <code>{ "success": true }</code>. Conflit (username/e-mail déjà pris) : erreur <code>success:false</code>.</p>
-
-<h3 id="check_auth">check_auth.php — GET</h3>
-<p>Indique si une session est active. Retourne l’identité courante le cas échéant.</p>
-<pre><code class="language-json">{ "authenticated": true, "user_id": 1001 }</code></pre>
-
-<h3 id="logout">logout.php — GET</h3>
-<p>Détruit la session (<code>session_unset</code> + <code>session_destroy</code>) puis redirige (302)
-vers <code>/index.html</code>. Ne renvoie pas de corps JSON.</p>
-
-<hr>
-
-<h2>🔑 Passkeys / WebAuthn (PoC)</h2>
-<p>Authentification forte additive, sans toucher à <code>login.php</code>. Le login passkey
-se fait en deux temps : on récupère d’abord les méthodes disponibles, puis on déroule le
-challenge WebAuthn.</p>
-
-<h3 id="login_methods">login_methods.php — POST</h3>
-<p>Retourne les méthodes de connexion disponibles pour un identifiant (sans révéler si le compte existe).</p>
-<pre><code class="language-json">{ "identifier": "alice" }</code></pre>
-<pre><code class="language-json">{ "success": true, "password": true, "passkey": false }</code></pre>
-
-<h3 id="passkey_login">passkey_login_options.php / passkey_login_verify.php — POST</h3>
-<p><code>passkey_login_options.php</code> renvoie un challenge WebAuthn ;
-<code>passkey_login_verify.php</code> vérifie l’assertion signée par l’authentificateur et ouvre la session.</p>
-
-<h3 id="passkey_register">passkey_register_options.php / passkey_register_verify.php — POST</h3>
-<p>Enregistrement d’une passkey pour l’utilisateur connecté : génération des options de création,
-puis vérification et stockage de la clé publique (COSE) et du compteur anti-rejeu.</p>
-
-<h3 id="passkey_manage">passkey_list.php (GET) / passkey_delete.php (POST)</h3>
-<p>Liste les passkeys de l’utilisateur connecté, ou en supprime une par <code>id</code>.
-La suppression d’une passkey appartenant à un autre utilisateur est refusée.</p>
-<pre><code class="language-json">{ "id": 3001 }</code></pre>
-
-<hr>
-
-<h2>👥 Utilisateurs &amp; profils</h2>
-
-<h3 id="get_all_users">get_all_users.php — GET</h3>
-<p>Liste des utilisateurs (réservé à l’administration globale). Session requise.</p>
-
-<h3 id="get_profile">get_profile.php — GET</h3>
-<p>Profil de l’utilisateur connecté.</p>
-<pre><code class="language-json">{ "success": true, "profile": { "bio": "...", "avatar_url": "...", "status": "disponible" } }</code></pre>
-
-<h3 id="get_user_profile">get_user_profile.php — GET</h3>
-<p>Profil public d’un utilisateur ciblé via <code>?user_id=&lt;int&gt;</code>.</p>
-
-<h3 id="update_profile">update_profile.php — POST</h3>
-<p>Met à jour le profil de l’utilisateur connecté (bio, avatar, statut). Charge utile vide acceptée.</p>
-<pre><code class="language-json">{ "bio": "Hello", "status": "disponible" }</code></pre>
-
-<h3 id="update_account">update_account.php — POST</h3>
-<p>Met à jour le compte (username, e-mail, mot de passe). Le changement de mot de passe exige le mot de passe actuel.</p>
-<pre><code class="language-json">{ "current_password": "...", "new_password": "..." }</code></pre>
-
-<hr>
-
-<h2>🧩 Serveurs</h2>
-
-<h3 id="get_servers">get_servers.php — GET</h3>
-<p>Serveurs dont l’utilisateur connecté est membre. Session requise (sinon <code>401</code>).</p>
-
-<h3 id="create_server">create_server.php — POST</h3>
-<p>Crée un serveur (l’appelant en devient propriétaire).</p>
-<pre><code class="language-json">{ "name": "Mon serveur" }</code></pre>
-
-<h3 id="get_server_name">get_server_name.php — GET</h3>
-<p>Nom d’un serveur via <code>?id=&lt;int&gt;</code>. Session requise.</p>
-
-<h3 id="get_user_servers">get_user_servers.php — GET</h3>
-<p>Serveurs d’un utilisateur donné via <code>?user_id=&lt;int&gt;</code> (usage administration).
-Paramètre manquant/invalide : <code>400</code>.</p>
-
-<hr>
-
-<h2>📺 Salons (channels)</h2>
-
-<h3 id="get_channels">get_channels.php — GET</h3>
-<p>Salons d’un serveur via <code>?server_id=&lt;int&gt;</code>. Session requise.</p>
-
-<h3 id="create_channel">create_channel.php — POST</h3>
-<p>Crée un salon dans un serveur.</p>
-<pre><code class="language-json">{ "server_id": 1101, "name": "general" }</code></pre>
-
-<hr>
-
-<h2>💬 Messages publics</h2>
-
-<h3 id="get_messages">get_messages.php — GET</h3>
-<p>Historique d’un salon via <code>?channel_id=&lt;int&gt;</code>. Session requise.</p>
-
-<h3 id="send_message">send_message.php — POST</h3>
-<p>Poste un message dans un salon.</p>
-<pre><code class="language-json">{ "channel_id": 1201, "content": "Bonjour !" }</code></pre>
-
-<h3 id="delete_message">delete_message.php — POST</h3>
-<p>Supprime un message (auteur ou modérateur selon les droits).</p>
-<pre><code class="language-json">{ "message_id": 1401 }</code></pre>
-
-<hr>
-
-<h2>🔗 Invitations</h2>
-
-<h3 id="create_invite">create_invite.php — POST</h3>
-<p>Génère un code d’invitation pour un serveur (paramètre <code>server_id</code> en POST natif).
-Retourne le code créé.</p>
-
-<h3 id="accept_invite">accept_invite.php — POST</h3>
-<p>Permet à un utilisateur connecté de rejoindre un serveur via un code.</p>
-<pre><code class="language-json">{ "code": "abc123" }</code></pre>
-<p>Succès :</p>
-<pre><code class="language-json">{ "success": true, "server_id": 42 }</code></pre>
-<p>Erreurs : données manquantes ou <code>{ "success": false, "error": "Invitation invalide." }</code>.</p>
-
-<hr>
-
-<h2>📨 Messages privés (DM)</h2>
-
-<h3 id="start_dm">start_dm.php — POST</h3>
-<p>Ouvre (ou retrouve) la conversation privée avec un autre utilisateur.</p>
-<pre><code class="language-json">{ "user_id": 1002 }</code></pre>
-
-<h3 id="get_dm_messages">get_dm_messages.php — GET</h3>
-<p>Messages d’une conversation via <code>?conversation_id=&lt;int&gt;</code>.
-<code>401</code> non connecté, <code>403</code> non participant, <code>404</code> conversation inconnue.</p>
-
-<h3 id="send_dm">send_dm.php — POST</h3>
-<p>Envoie un message privé dans une conversation.</p>
-<pre><code class="language-json">{ "conversation_id": 2001, "content": "Salut !" }</code></pre>
-
-<h3 id="get_dm_notifications">get_dm_notifications.php — GET</h3>
-<p>Conversations comportant des messages non lus pour l’utilisateur connecté (calcul basé sur <code>dm_reads</code>).</p>
-
-<hr>
-
-<h2>🛡️ Modération &amp; rôles</h2>
-
-<h3 id="get_my_server_role">get_my_server_role.php — GET</h3>
-<p>Rôle de l’utilisateur connecté dans un serveur via <code>?server_id=&lt;int&gt;</code>
-(<code>P2</code>, <code>P3</code> ou <code>member</code>).</p>
-
-<h3 id="get_users_in_server">get_users_in_server.php — GET</h3>
-<p>Membres d’un serveur (avec leur rôle) via <code>?server_id=&lt;int&gt;</code>.</p>
-
-<h3 id="set_member_role">set_member_role.php — POST</h3>
-<p>Modifie le rôle d’un membre (réservé aux administrateurs de serveur).</p>
-<pre><code class="language-json">{ "server_id": 1101, "user_id": 1002, "role": "P3" }</code></pre>
-
-<h3 id="kick_member">kick_member.php — POST</h3>
-<p>Exclut un membre d’un serveur.</p>
-<pre><code class="language-json">{ "server_id": 1101, "user_id": 1002 }</code></pre>
-
-<h3 id="ban_user">ban_user.php — POST</h3>
-<p>Bannit un utilisateur d’un serveur (modération).</p>
-
+  <footer>
+    <span>Biscord API Docs</span>
+    <span data-i18n-fr="Généré depuis les routes Laravel actuelles." data-i18n-en="Generated from the current Laravel route surface.">Généré depuis les routes Laravel actuelles.</span>
+  </footer>
 </body>
 </html>
