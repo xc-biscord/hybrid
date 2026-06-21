@@ -1,0 +1,139 @@
+// Modèle relationnel Biscord (ERD) — source de rendu PNG (graphviz).
+// Équivalent du diagramme Mermaid biscord-erd.mmd.
+// Rendu : dot -Tpng biscord-erd.dot -o biscord-erd.png
+digraph BiscordERD {
+    graph [rankdir=LR, splines=true, overlap=false, nodesep=0.5, ranksep=1.3, fontname="Helvetica", bgcolor="white", label="Biscord — Modèle relationnel (ERD)\nPK = clé primaire · FK = clé étrangère · UK = clé unique", labelloc=t, fontsize=20];
+    node  [shape=plaintext, fontname="Helvetica", fontsize=11];
+    edge  [fontname="Helvetica", fontsize=10, color="#555555", arrowhead=normal, arrowtail=none, dir=both, arrowsize=0.8];
+
+    users [label=<
+      <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="white">
+        <tr><td bgcolor="#4f46e5" align="center"><font color="white"><b>users</b></font></td></tr>
+        <tr><td align="left"><b>PK</b> id</td></tr>
+        <tr><td align="left"><b>UK</b> username</td></tr>
+        <tr><td align="left"><b>UK</b> email</td></tr>
+        <tr><td align="left">password_hash</td></tr>
+        <tr><td align="left">created_at</td></tr>
+      </table>>];
+
+    profiles [label=<
+      <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="white">
+        <tr><td bgcolor="#0ea5e9" align="center"><font color="white"><b>profiles</b></font></td></tr>
+        <tr><td align="left"><b>PK,FK</b> user_id &rarr; users.id</td></tr>
+        <tr><td align="left">bio</td></tr>
+        <tr><td align="left">avatar_url</td></tr>
+        <tr><td align="left">status (défaut: disponible)</td></tr>
+      </table>>];
+
+    global_permissions [label=<
+      <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="white">
+        <tr><td bgcolor="#0ea5e9" align="center"><font color="white"><b>global_permissions</b></font></td></tr>
+        <tr><td align="left"><b>PK,FK</b> user_id &rarr; users.id</td></tr>
+        <tr><td align="left">permission_level (P1)</td></tr>
+      </table>>];
+
+    servers [label=<
+      <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="white">
+        <tr><td bgcolor="#4f46e5" align="center"><font color="white"><b>servers</b></font></td></tr>
+        <tr><td align="left"><b>PK</b> id</td></tr>
+        <tr><td align="left">name</td></tr>
+        <tr><td align="left"><b>FK</b> owner_id &rarr; users.id</td></tr>
+        <tr><td align="left">created_at</td></tr>
+      </table>>];
+
+    server_members [label=<
+      <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="white">
+        <tr><td bgcolor="#0ea5e9" align="center"><font color="white"><b>server_members</b></font></td></tr>
+        <tr><td align="left"><b>PK,FK</b> user_id &rarr; users.id</td></tr>
+        <tr><td align="left"><b>PK,FK</b> server_id &rarr; servers.id</td></tr>
+        <tr><td align="left">role (P2 / P3 / member)</td></tr>
+        <tr><td align="left">joined_at</td></tr>
+      </table>>];
+
+    channels [label=<
+      <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="white">
+        <tr><td bgcolor="#4f46e5" align="center"><font color="white"><b>channels</b></font></td></tr>
+        <tr><td align="left"><b>PK</b> id</td></tr>
+        <tr><td align="left"><b>FK</b> server_id &rarr; servers.id</td></tr>
+        <tr><td align="left">name</td></tr>
+        <tr><td align="left">created_at</td></tr>
+      </table>>];
+
+    messages [label=<
+      <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="white">
+        <tr><td bgcolor="#4f46e5" align="center"><font color="white"><b>messages</b></font></td></tr>
+        <tr><td align="left"><b>PK</b> id</td></tr>
+        <tr><td align="left"><b>FK</b> channel_id &rarr; channels.id</td></tr>
+        <tr><td align="left"><b>FK</b> user_id &rarr; users.id</td></tr>
+        <tr><td align="left">content</td></tr>
+        <tr><td align="left">created_at</td></tr>
+      </table>>];
+
+    invitations [label=<
+      <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="white">
+        <tr><td bgcolor="#4f46e5" align="center"><font color="white"><b>invitations</b></font></td></tr>
+        <tr><td align="left"><b>PK</b> id</td></tr>
+        <tr><td align="left"><b>FK</b> server_id &rarr; servers.id</td></tr>
+        <tr><td align="left"><b>UK</b> code</td></tr>
+        <tr><td align="left">created_at</td></tr>
+      </table>>];
+
+    dm_conversations [label=<
+      <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="white">
+        <tr><td bgcolor="#4f46e5" align="center"><font color="white"><b>dm_conversations</b></font></td></tr>
+        <tr><td align="left"><b>PK</b> id</td></tr>
+        <tr><td align="left"><b>FK</b> user1_id &rarr; users.id</td></tr>
+        <tr><td align="left"><b>FK</b> user2_id &rarr; users.id</td></tr>
+        <tr><td align="left"><b>UK</b> (user1_id, user2_id)</td></tr>
+        <tr><td align="left">created_at</td></tr>
+      </table>>];
+
+    dm_messages [label=<
+      <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="white">
+        <tr><td bgcolor="#4f46e5" align="center"><font color="white"><b>dm_messages</b></font></td></tr>
+        <tr><td align="left"><b>PK</b> id</td></tr>
+        <tr><td align="left"><b>FK</b> conversation_id &rarr; dm_conversations.id</td></tr>
+        <tr><td align="left"><b>FK</b> sender_id &rarr; users.id</td></tr>
+        <tr><td align="left">content</td></tr>
+        <tr><td align="left">created_at</td></tr>
+      </table>>];
+
+    dm_reads [label=<
+      <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="white">
+        <tr><td bgcolor="#0ea5e9" align="center"><font color="white"><b>dm_reads</b></font></td></tr>
+        <tr><td align="left"><b>PK,FK</b> user_id &rarr; users.id</td></tr>
+        <tr><td align="left"><b>PK,FK</b> conversation_id &rarr; dm_conversations.id</td></tr>
+        <tr><td align="left">last_read_at</td></tr>
+      </table>>];
+
+    user_passkeys [label=<
+      <table border="0" cellborder="1" cellspacing="0" cellpadding="4" bgcolor="white">
+        <tr><td bgcolor="#16a34a" align="center"><font color="white"><b>user_passkeys</b></font></td></tr>
+        <tr><td align="left"><b>PK</b> id</td></tr>
+        <tr><td align="left"><b>FK</b> user_id &rarr; users.id</td></tr>
+        <tr><td align="left"><b>UK</b> credential_id</td></tr>
+        <tr><td align="left">public_key (COSE)</td></tr>
+        <tr><td align="left">sign_count</td></tr>
+        <tr><td align="left">name / user_handle</td></tr>
+        <tr><td align="left">transports / aaguid</td></tr>
+        <tr><td align="left">created_at / last_used_at</td></tr>
+      </table>>];
+
+    // Relations (taillabel = côté "1", headlabel = côté "N" ou "0..1")
+    users -> profiles            [taillabel="1", headlabel="0..1"];
+    users -> global_permissions  [taillabel="1", headlabel="0..1"];
+    users -> servers             [taillabel="1", headlabel="0..N", label="owner"];
+    users -> server_members      [taillabel="1", headlabel="0..N"];
+    servers -> server_members    [taillabel="1", headlabel="0..N"];
+    servers -> channels          [taillabel="1", headlabel="0..N"];
+    servers -> invitations       [taillabel="1", headlabel="0..N"];
+    channels -> messages         [taillabel="1", headlabel="0..N"];
+    users -> messages            [taillabel="1", headlabel="0..N"];
+    users -> dm_conversations    [taillabel="1", headlabel="0..N", label="user1"];
+    users -> dm_conversations    [taillabel="1", headlabel="0..N", label="user2"];
+    dm_conversations -> dm_messages [taillabel="1", headlabel="0..N"];
+    users -> dm_messages         [taillabel="1", headlabel="0..N", label="sender"];
+    users -> dm_reads            [taillabel="1", headlabel="0..N"];
+    dm_conversations -> dm_reads [taillabel="1", headlabel="0..N"];
+    users -> user_passkeys       [taillabel="1", headlabel="0..N"];
+}
