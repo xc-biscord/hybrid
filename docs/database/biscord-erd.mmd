@@ -1,0 +1,111 @@
+%% Modèle relationnel Biscord — diagramme entité-association (ERD)
+%% Source de vérité : biscord_db.sql + laravel/database/sql/user_passkeys.sql
+%% Notation Mermaid : PK = clé primaire, FK = clé étrangère, UK = clé unique.
+erDiagram
+    users ||--o| profiles : "possède"
+    users ||--o| global_permissions : "peut détenir"
+    users ||--o{ servers : "possède (owner)"
+    users ||--o{ server_members : "adhère"
+    servers ||--o{ server_members : "regroupe"
+    servers ||--o{ channels : "contient"
+    servers ||--o{ invitations : "émet"
+    channels ||--o{ messages : "héberge"
+    users ||--o{ messages : "écrit"
+    users ||--o{ dm_conversations : "participe (user1)"
+    users ||--o{ dm_conversations : "participe (user2)"
+    dm_conversations ||--o{ dm_messages : "contient"
+    users ||--o{ dm_messages : "envoie"
+    users ||--o{ dm_reads : "suit la lecture"
+    dm_conversations ||--o{ dm_reads : "est suivie par"
+    users ||--o{ user_passkeys : "enregistre"
+
+    users {
+        int id PK
+        varchar username UK
+        varchar email UK
+        text password_hash
+        timestamp created_at
+    }
+
+    profiles {
+        int user_id PK_FK
+        text bio
+        varchar avatar_url
+        varchar status "défaut: disponible"
+    }
+
+    global_permissions {
+        int user_id PK_FK
+        enum permission_level "P1 (super admin global)"
+    }
+
+    servers {
+        int id PK
+        varchar name
+        int owner_id FK
+        datetime created_at
+    }
+
+    server_members {
+        int user_id PK_FK
+        int server_id PK_FK
+        datetime joined_at
+        enum role "P2 / P3 / member"
+    }
+
+    channels {
+        int id PK
+        int server_id FK
+        varchar name
+        datetime created_at
+    }
+
+    messages {
+        int id PK
+        int channel_id FK
+        int user_id FK
+        text content
+        datetime created_at
+    }
+
+    invitations {
+        int id PK
+        int server_id FK
+        varchar code UK
+        timestamp created_at
+    }
+
+    dm_conversations {
+        int id PK
+        int user1_id FK
+        int user2_id FK
+        datetime created_at
+    }
+
+    dm_messages {
+        int id PK
+        int conversation_id FK
+        int sender_id FK
+        text content
+        datetime created_at
+    }
+
+    dm_reads {
+        int user_id PK_FK
+        int conversation_id PK_FK
+        datetime last_read_at
+    }
+
+    user_passkeys {
+        int id PK
+        int user_id FK
+        varchar credential_id UK
+        text public_key
+        bigint sign_count
+        varchar name
+        varchar user_handle
+        varchar transports
+        varchar aaguid
+        timestamp created_at
+        timestamp last_used_at
+    }
