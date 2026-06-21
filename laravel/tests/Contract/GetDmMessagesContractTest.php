@@ -36,7 +36,7 @@ final class GetDmMessagesContractTest extends ContractTestCase
         $this->assertSame('Non authentifié', $response['json']['error']);
     }
 
-    public function test_get_dm_messages_participant_success_shape(): void
+    public function test_get_dm_messages_participant_returns_200(): void
     {
         // Alice et Bob sont participants à DM_CONVERSATION_ID=2001
         $this->actingAsAlice();
@@ -45,7 +45,19 @@ final class GetDmMessagesContractTest extends ContractTestCase
         );
 
         $this->assertSame(200, $response['status']);
+    }
+
+    public function test_get_dm_messages_participant_response_exposes_messages_array(): void
+    {
+        // Alice et Bob sont participants à DM_CONVERSATION_ID=2001
+        $this->actingAsAlice();
+        $response = $this->client->get(
+            '/api/get_dm_messages.php?conversation_id=' . TestDatabaseSeeder::DM_CONVERSATION_ID
+        );
+
         $this->assertTrue($response['json']['success']);
+        $this->assertArrayHasKey('messages', $response['json']);
+        $this->assertIsArray($response['json']['messages']);
     }
 
     public function test_get_dm_messages_non_participant_returns_403(): void
@@ -71,14 +83,22 @@ final class GetDmMessagesContractTest extends ContractTestCase
         $this->assertArrayHasKey('error', $response['json']);
     }
 
-    public function test_get_dm_messages_missing_conversation_id_uses_zero_invariant(): void
+    public function test_get_dm_messages_missing_conversation_id_returns_400(): void
     {
-        // @legacy-invariant: conversation_id absent → (int)(null ?? 0) = 0
-        // → conversation introuvable → 404 ou 400 selon le service
+        // @legacy-invariant: conversation_id absent → (int)(null ?? 0) = 0.
+        // DmService rejette 0 (<= 0) via InvalidArgumentException → 400 déterministe.
         $this->actingAsAlice();
         $response = $this->client->get('/api/get_dm_messages.php');
 
-        $this->assertContains($response['status'], [400, 404]);
+        $this->assertSame(400, $response['status']);
+    }
+
+    public function test_get_dm_messages_missing_conversation_id_returns_error_payload(): void
+    {
+        $this->actingAsAlice();
+        $response = $this->client->get('/api/get_dm_messages.php');
+
         $this->assertFalse($response['json']['success']);
+        $this->assertArrayHasKey('error', $response['json']);
     }
 }
