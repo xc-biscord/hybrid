@@ -578,8 +578,14 @@
           body: JSON.stringify({ ping: true }),
         });
         time = performance.now() - start;
-        await res.json();
-        // « Opérationnel » = l'endpoint répond avec du JSON, quel que soit le code HTTP.
+        const body = await res.text();
+        // « Opérationnel » = l'endpoint a répondu. auth.php renvoie légitimement
+        // un corps VIDE (HTTP 200) sur la voie authentifiée (invariant legacy) :
+        // on n'exige donc pas de JSON sur un corps vide. Sinon, on valide que la
+        // réponse non vide est bien du JSON, quel que soit le code HTTP.
+        if (body.trim() !== "") {
+          JSON.parse(body);
+        }
         ok = true;
       } catch {
         ok = false;
