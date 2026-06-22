@@ -9,6 +9,20 @@ import { DmNotifier } from "./DmNotifier.js";
 const DEFAULT_PROFILE_AVATAR = "https://biscord-api-stg.xcsoftworks.com/assets/default.png";
 const DEFAULT_USER_AVATAR = "https://biscord-api-stg.xcsoftworks.com/assets/default-user.png";
 
+// N'autorise que des URLs http(s) ; neutralise les schémas dangereux
+// (javascript:, data:) issus de données utilisateur avant affectation à .src.
+function safeImageUrl(value, fallback) {
+  if (typeof value !== "string" || value === "") {
+    return fallback;
+  }
+  try {
+    const url = new URL(value, window.location.href);
+    return url.protocol === "http:" || url.protocol === "https:" ? url.href : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 export class ServerPageController {
   constructor({ apiClient = defaultApiClient } = {}) {
     const serverId = new URLSearchParams(window.location.search).get("id");
@@ -92,7 +106,7 @@ export class ServerPageController {
 
     document.getElementById("user-username").textContent = profile.username;
     document.getElementById("user-status").textContent = profile.status || "En ligne";
-    document.getElementById("user-avatar").src = profile.avatar_url || DEFAULT_PROFILE_AVATAR;
+    document.getElementById("user-avatar").src = safeImageUrl(profile.avatar_url, DEFAULT_PROFILE_AVATAR);
   }
 
   async loadMyServerRole() {

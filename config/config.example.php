@@ -14,10 +14,12 @@
  * le runtime Laravel.
  */
 
-$DB_HOST = 'localhost';
-$DB_NAME = 'biscord_db';
-$DB_USER = 'biscord_app';
-$DB_PASS = 'changeme';
+$DB_HOST = getenv('DB_HOST') ?: 'localhost';
+$DB_NAME = getenv('DB_NAME') ?: 'biscord_db';
+$DB_USER = getenv('DB_USER') ?: 'biscord_app';
+// Renseigner le mot de passe via la variable d'environnement DB_PASS (ou
+// directement dans config/config.php, exclu du dépôt). Aucun secret en dur ici.
+$DB_PASS = getenv('DB_PASS') ?: '';
 
 try {
     $pdo = new PDO("mysql:host=$DB_HOST;dbname=$DB_NAME;charset=utf8mb4", $DB_USER, $DB_PASS);

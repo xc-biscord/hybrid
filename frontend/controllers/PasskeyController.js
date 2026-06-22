@@ -38,6 +38,16 @@ function formatDate(value) {
   return date.toLocaleString();
 }
 
+// Affiche un message d'état (vide / erreur) sans interpréter de HTML : le texte
+// peut provenir de l'API, on passe donc par textContent.
+function renderEmptyState(message) {
+  listElement.innerHTML = "";
+  const empty = document.createElement("li");
+  empty.className = "passkeys-empty";
+  empty.textContent = message;
+  listElement.appendChild(empty);
+}
+
 function renderPasskeys(passkeys) {
   listElement.innerHTML = "";
 
@@ -87,10 +97,10 @@ async function loadPasskeys() {
     if (data.success) {
       renderPasskeys(data.passkeys || []);
     } else {
-      listElement.innerHTML = `<li class="passkeys-empty">${data.error || "Erreur de chargement."}</li>`;
+      renderEmptyState(data.error || "Erreur de chargement.");
     }
   } catch {
-    listElement.innerHTML = `<li class="passkeys-empty">Impossible de charger les passkeys.</li>`;
+    renderEmptyState("Impossible de charger les passkeys.");
   }
 }
 
