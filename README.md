@@ -1,5 +1,16 @@
 # Biscord
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=xc-biscord_hybrid&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=xc-biscord_hybrid)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=xc-biscord_hybrid&metric=bugs)](https://sonarcloud.io/summary/new_code?id=xc-biscord_hybrid)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=xc-biscord_hybrid&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=xc-biscord_hybrid)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=xc-biscord_hybrid&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=xc-biscord_hybrid)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=xc-biscord_hybrid&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=xc-biscord_hybrid)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=xc-biscord_hybrid&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=xc-biscord_hybrid)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=xc-biscord_hybrid&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=xc-biscord_hybrid)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=xc-biscord_hybrid&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=xc-biscord_hybrid)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=xc-biscord_hybrid&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=xc-biscord_hybrid)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=xc-biscord_hybrid&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=xc-biscord_hybrid)
+
 Biscord est une application web de messagerie communautaire (type Discord) :
 serveurs, salons, messages publics, messages privés (DM), invitations, rôles et
 modération, et un PoC d'authentification par **passkeys (WebAuthn)**.
