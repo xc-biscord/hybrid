@@ -1,5 +1,19 @@
 const DEFAULT_AVATAR = "https://biscord-api-stg.xcsoftworks.com/assets/default.png";
 
+// N'autorise que des URLs http(s) pour les avatars : neutralise les schémas
+// dangereux (javascript:, data:) issus de données utilisateur.
+function safeImageUrl(value) {
+  if (typeof value !== "string" || value === "") {
+    return DEFAULT_AVATAR;
+  }
+  try {
+    const url = new URL(value, document.baseURI);
+    return url.protocol === "http:" || url.protocol === "https:" ? url.href : DEFAULT_AVATAR;
+  } catch {
+    return DEFAULT_AVATAR;
+  }
+}
+
 export class DmView {
   constructor(doc = document) {
     this.doc = doc;
@@ -25,13 +39,9 @@ export class DmView {
       return;
     }
 
-    console.log("Destinataire DM :", recipient);
-
     this.username.textContent = recipient.username || "???";
     this.sidebarUsername.textContent = recipient.username || "???";
-    this.avatar.src = recipient.avatar_url && recipient.avatar_url !== ""
-      ? recipient.avatar_url
-      : DEFAULT_AVATAR;
+    this.avatar.src = safeImageUrl(recipient.avatar_url);
   }
 
   renderMessages(messages) {
@@ -46,12 +56,26 @@ export class DmView {
       if (!isSameUser) {
         const group = document.createElement("div");
         group.className = "message-group";
-        group.innerHTML = `
-          <img src="${msg.avatar || DEFAULT_AVATAR}" class="message-avatar">
-          <div class="message-content-group">
-            <div class="message-header">${msg.username}</div>
-            <div class="message-text">${msg.content}</div>
-          </div>`;
+
+        const avatar = document.createElement("img");
+        avatar.className = "message-avatar";
+        avatar.src = safeImageUrl(msg.avatar);
+
+        const contentGroup = document.createElement("div");
+        contentGroup.className = "message-content-group";
+
+        const header = document.createElement("div");
+        header.className = "message-header";
+        header.textContent = msg.username;
+
+        const text = document.createElement("div");
+        text.className = "message-text";
+        text.textContent = msg.content;
+
+        contentGroup.appendChild(header);
+        contentGroup.appendChild(text);
+        group.appendChild(avatar);
+        group.appendChild(contentGroup);
         this.messagesContainer.appendChild(group);
       } else {
         const lastGroup = this.messagesContainer.lastElementChild.querySelector(".message-content-group");

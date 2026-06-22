@@ -33,7 +33,7 @@ final class AuthController extends BaseApiController
             return $this->error('Identifiants manquants', 400);
         }
 
-        $throttleKey = 'login_attempts:' . sha1(mb_strtolower($username) . '|' . ($_SERVER['REMOTE_ADDR'] ?? ''));
+        $throttleKey = 'login_attempts:' . hash('sha256', mb_strtolower($username) . '|' . ($_SERVER['REMOTE_ADDR'] ?? ''));
         $attempts = (int) Cache::store('file')->get($throttleKey, 0);
         if ($attempts >= self::LOGIN_MAX_ATTEMPTS) {
             return $this->error('Trop de tentatives. Réessaie dans quelques minutes.', 429);
